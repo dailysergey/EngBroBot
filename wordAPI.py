@@ -45,7 +45,7 @@ class engWord:
 #        payload = "from=en&text={}&to=ru".format(word)
 #        headers = {
 #            'x-rapidapi-host': "nlp-translation.p.rapidapi.com",
-#            'x-rapidapi-key': "55189bdbb6msha49302ebdb3d880p17ce4bjsn1a825f8d4d7a",
+#            'x-rapidapi-key': "key.WordApi",
 #            'content-type': "application/x-www-form-urlencoded"
 #        }
 #        response = requests.request("POST", url, data=payload, headers=headers)
