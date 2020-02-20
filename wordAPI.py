@@ -12,15 +12,23 @@ class engWord:
                         'x-rapidapi-key': key.WordApi}
 
     def getRandomWord(self):
-        url = "https://wordsapiv1.p.rapidapi.com/words/"
-        headers = {'x-rapidapi-host': "wordsapiv1.p.rapidapi.com",
-                   'x-rapidapi-key': key.WordApi}
-        querystring = {"random": "true"}
-        response = requests.request(
-            "GET", url, headers=headers, params=querystring)
-        print(response.text)
-        return response.text
-
+        try:
+            url = "https://wordsapiv1.p.rapidapi.com/words/"
+            headers = {'x-rapidapi-host': "wordsapiv1.p.rapidapi.com",
+                       'x-rapidapi-key': key.WordApi}
+            querystring = {"random": "true"}
+            response = requests.request(
+                "GET", url, headers=headers, params=querystring)
+            print(response.text)
+            return response.text
+        except Exception as e:
+            print(e)
+            return 'Возникла ошибка:{}'.format(e.args)
+    def getTranscription(self):
+        try:
+            pass
+        except Exception as ex:
+            pass
     def getTranslation(self, word):
         try:
             # GOOGLE TRANSLATION API
@@ -39,15 +47,3 @@ class engWord:
             print(er)
             return "Возникла ошибка при переводе"
 
-# VERSION OF https://rapidapi.com/gofitech/api/nlp-translation/endpoints
-#        url = "https://nlp-translation.p.rapidapi.com/v1/translate"
-# Forming query_word and config FROM and TO langs
-#        payload = "from=en&text={}&to=ru".format(word)
-#        headers = {
-#            'x-rapidapi-host': "nlp-translation.p.rapidapi.com",
-#            'x-rapidapi-key': "key.WordApi",
-#            'content-type': "application/x-www-form-urlencoded"
-#        }
-#        response = requests.request("POST", url, data=payload, headers=headers)
-#res = self.translator.translate(word)
-# print(self.translator.translate(word))
