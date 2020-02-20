@@ -2,6 +2,7 @@ import telebot
 import wordAPI
 import key
 import json
+from pprint import pprint
 
 # Initialize
 bot = telebot.TeleBot(key.API_skipper)
@@ -21,7 +22,9 @@ keyboard1.row('Давай New English word')
 
 @bot.message_handler(commands=['start'])
 def start_message(message):
-    print(message)
+    # TODO Start store history with user here to mongo
+    # message.json["from"] - info about user from whom message
+    # message.json["text"] - actual text from user
     bot.send_message(
         message.chat.id, 'Привет, ты написал мне /start', reply_markup=keyboard1)
 
