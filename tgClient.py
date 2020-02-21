@@ -9,9 +9,9 @@ class MongoEntity:
     def __init__(self):
         try:
             client = MongoClient(key.MONGO_URL)
-            db = client['tgclients']
-            tgCol = db['clients']
-            serverStatusResult = db.command("serverStatus")
-            pprint(serverStatusResult)
+            # connected to DB
+            self.connect = client['tgclients']
+            #serverStatusResult = db.command("serverStatus")
+            # pprint(serverStatusResult)
         except Exception as ex:
             pprint(ex)
