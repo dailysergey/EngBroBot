@@ -6,30 +6,25 @@ from pprint import pprint
 import tgClient
 # Initialize
 bot = telebot.TeleBot(key.API_skipper)
+# Global Connect to MONGO
+db = tgClient.MongoEntity().connect
+clients = db['clients']
+messages = db['message']
 
 keyboard1 = telebot.types.ReplyKeyboardMarkup(row_width=1)
 keyboard1.row('Давай New English word')
-
+keyboard1.row('Добавить ежедневные уведомления')
 
 # -1. Добавить логирование
-# 0. Обрамить try catch
-# 1. Найти API для получения английского слова - done
-# 2. Выдавать новое слово по запросу пользователя
+
 # 3. Отправлять пользователю уведомления на экран
-# 4. Хранить chat_id
-# 5. Если уже пользователь вводил /start, говорить ему об этом
 
 
 @bot.message_handler(commands=['start'])
 def start_message(message):
-    # TODO Start store history with user here to mongo
     # message.json["from"] - info about user from whom message
     # message.json["text"] - actual text from user
-    db = tgClient.MongoEntity().connect
-    clients = db['clients']
-    messages = db['message']
     user_id = message.json['from']['id']
-
     if clients.find({'id': user_id}).count() > 0:
         bot.send_message(
             message.chat.id, 'Дорогой, ты уже это мне писал ', reply_markup=keyboard1)
@@ -41,11 +36,12 @@ def start_message(message):
         bot.send_message(
             message.chat.id, 'Привет, ты написал мне /start', reply_markup=keyboard1)
 # TODO create func with norm deserialize from tg_object
+# TODO if user send more then 10 the same messages
 
 
 @bot.message_handler(content_types=['text'])
 def send_text(message):
-    if message.text.lower() == 'word':
+    if message.text.lower() == 'word' or message.text == 'Давай New English word':
         generateEngWord(message)
 
 # Refactored func with one transaction of word
@@ -57,6 +53,7 @@ def generateEngWord(message):
     data = json.loads(resultEngWord)
 
     engWord = data['word']
+    # TODO Add here api for generated english word
     translation = api.getTranslation(engWord)
 
     bot.send_message(message.chat.id, engWord)
