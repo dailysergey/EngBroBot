@@ -4,6 +4,22 @@ import key
 import json
 from pprint import pprint
 import tgClient
+import botMessages
+
+# region Use syslog to log from python
+import syslog
+syslog.openlog("TgEngBot")
+syslog.syslog(syslog.LOG_ALERT, 'Start logging USING SYSLog')
+# endregion
+
+# region Attempt to use logging pkg
+# Logging
+glogger = logging.getLogger('tg_logger')
+glogger.setLevel(logging.DEBUG)
+handler = logging.handlers.SysLogHandler(address='/dev/log')
+glogger.addHandler(handler)
+# endregion
+
 # Initialize
 bot = telebot.TeleBot(key.API_skipper)
 # Global Connect to MONGO
