@@ -11,9 +11,10 @@ db = tgClient.MongoEntity().connect
 clients = db['clients']
 messages = db['message']
 
+# Keyboard after first /Start
 keyboard1 = telebot.types.ReplyKeyboardMarkup(row_width=1)
-keyboard1.row('Давай New English word')
-keyboard1.row('Добавить ежедневные уведомления')
+keyboard1.row('🇬🇧Give New English word🇬🇧')
+keyboard1.row('⏰Set daily notifies⏰')
 
 # -1. Добавить логирование
 
