@@ -1,6 +1,7 @@
 import requests
 import key
 import json
+import pprint
 
 
 class engWord:
@@ -24,11 +25,14 @@ class engWord:
         except Exception as e:
             print(e)
             return 'Возникла ошибка:{}'.format(e.args)
+
     def getTranscription(self):
         try:
             pass
         except Exception as ex:
-            pass
+            print(ex)
+            return 'Возникла ошибка:{}'.format(ex.args)
+
     def getTranslation(self, word):
         try:
             # GOOGLE TRANSLATION API
@@ -36,14 +40,13 @@ class engWord:
             payload = "q={}&target={}&key={}".format(
                 word, self.ResultLang, key.GoogleTranslationKey)
             headers = {'content-type': "application/x-www-form-urlencoded"}
-            print(url, payload)
             response = requests.request(
                 "POST", url, data=payload, headers=headers)
             result = json.loads(response.text)[
                 'data']['translations'][0]['translatedText'].lower()
+            print(response)
 
             return result
         except Exception as er:
             print(er)
             return "Возникла ошибка при переводе"
-
