@@ -33,7 +33,11 @@ score = db['score']
 # Keyboard after first /Start
 keyboard1 = telebot.types.ReplyKeyboardMarkup(row_width=1)
 keyboard1.row('🇬🇧Give New English word🇬🇧')
-keyboard1.row('⏰Set daily notifies⏰')
+keyboard1.row('⏰Enable daily notifies⏰')
+
+keyboard2 = telebot.types.ReplyKeyboardMarkup(row_width=1)
+keyboard2.row('🇬🇧Give New English word🇬🇧')
+keyboard2.row('⏰Disable daily notifies⏰')
 
 
 @bot.message_handler(commands=['start'])
