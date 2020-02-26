@@ -92,12 +92,30 @@ def checkSpamAndFlood(user_id):
 
 @bot.message_handler(content_types=['text'])
 def send_text(message):
-    if message.text.lower() == 'word' or message.text == '🇬🇧Give New English word🇬🇧':
+    # get user_id
+    user_id = message.json['from']['id']
+    if message.text == '🇬🇧Give New English word🇬🇧':
         generateEngWord(message)
-    if message.text == '⏰Set daily notifies⏰':
-        # while No CancelationToken
-        # Ask time from to
-        pass
+    if message.text == '⏰Enable daily notifies⏰':
+        # how to ask questions
+        clients.update({'id': user_id}, {"$set": {'send_notifies': 'true'}},
+                       upsert=True)
+        # send message to congrat
+        bot.send_message(
+            message.chat.id, botMessages.sticker_notify, reply_markup=keyboard2)
+        bot.send_message(
+            message.chat.id, botMessages.notify_agreement, reply_markup=keyboard2)
+
+    if message.text == '⏰Disable daily notifies⏰':
+
+        clients.update({'id': user_id}, {"$set": {'send_notifies': 'false'}},
+                       upsert=True)
+        # send message to say goodbye
+        bot.send_sticker(
+            message.chat.id, botMessages.sticker_notify)
+        bot.send_message(
+            message.chat.id, botMessages.notify_agreement, reply_markup=keyboard2)
+
 # Refactored func with one transaction of word
 
 # TODO hide to wordApi.py
