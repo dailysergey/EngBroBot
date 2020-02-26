@@ -60,7 +60,9 @@ def start_message(message):
         # else: save user to my db and send congrats to join
         else:
             # save user
-            clients.insert_one(message.json['from'])
+            user = message.json['from']
+            user['send_notifies'] = 'false'
+            clients.insert_one(user)
             # form message from user
             text_dict = {'message_id': message.json['message_id'], 'user_id': user_id,
                          'date': message.json['date'], 'text': message.json['text']}
