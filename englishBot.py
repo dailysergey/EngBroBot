@@ -14,13 +14,8 @@ syslog.openlog("TgEngBot")
 syslog.syslog(syslog.LOG_ALERT, 'Start logging USING SYSLog')
 # endregion
 
-# region Attempt to use logging pkg
-# Logging
-glogger = logging.getLogger('tg_logger')
-glogger.setLevel(logging.DEBUG)
-handler = logging.handlers.SysLogHandler(address='/dev/log')
-glogger.addHandler(handler)
-# endregion
+logging.basicConfig(level=logging.DEBUG,
+                    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
 # Initialize
 bot = telebot.TeleBot(key.API_skipper)
