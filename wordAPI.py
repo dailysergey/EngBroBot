@@ -20,11 +20,17 @@ class engWord:
             querystring = {"random": "true"}
             response = requests.request(
                 "GET", url, headers=headers, params=querystring)
-            print(response.text)
-            return response.text
+            data = json.loads(response.text)
+            if data.get('pronunciation') is not None:
+                pron = data['pronunciation']
+                # check key 'all'
+                if pron.get('all') is not None:
+                    pronounce = data['pronunciation']['all']
+                    return data['word'], pronounce       
+            return data['word'], None
         except Exception as e:
             print(e)
-            return 'Возникла ошибка:{}'.format(e.args)
+            return data['word'], None
 
     def getTranscription(self):
         try:
