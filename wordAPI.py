@@ -1,13 +1,23 @@
+from datetime import timedelta
 import requests
 import key
 import json
+import logging.handlers
+import logging
 import pprint
+from datetime import datetime
+import urllib
+
+logging.basicConfig(level=logging.DEBUG,
+                    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
 
 class engWord:
     # Constructor
     def __init__(self):
         self.ResultLang = 'ru'
+        self.SourceLang = 'en'
+        self.Topic = ''
         self.url = "https://wordsapiv1.p.rapidapi.com/words/"
         self.headers = {'x-rapidapi-host': "wordsapiv1.p.rapidapi.com",
                         'x-rapidapi-key': key.WordApi}
