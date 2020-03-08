@@ -91,31 +91,40 @@ def AutoResendMessages():
 def send_text(message):
     # get user_id
     user_id = message.json['from']['id']
-    if message.text == '🇬🇧Give New English word🇬🇧':
-        generateEngWord(message)
-    if message.text == '⏰Enable daily notifies⏰':
+    if message.text == botMessages.keyboard_hello_row1 or message.text == botMessages.keyboard_hello_row1:
+        generateEngWord(message.chat.id)
+    elif message.text == botMessages.keyboard_enable_noty_row3:
         # how to ask questions
         clients.update({'id': user_id}, {"$set": {'send_notifies': 'true'}},
                        upsert=True)
         # send message to congrat
-        bot.send_message(
+        bot.send_sticker(
             message.chat.id, botMessages.sticker_notify, reply_markup=keyboard2)
         bot.send_message(
             message.chat.id, botMessages.notify_agreement, reply_markup=keyboard2)
 
-    if message.text == '⏰Disable daily notifies⏰':
+    elif message.text == botMessages.keyboard_disable_noty_row3:
 
         clients.update({'id': user_id}, {"$set": {'send_notifies': 'false'}},
                        upsert=True)
         # send message to say goodbye
         bot.send_sticker(
-            message.chat.id, botMessages.sticker_notify)
+            message.chat.id, botMessages.sticker_notify_goodbye)
         bot.send_message(
-            message.chat.id, botMessages.notify_agreement, reply_markup=keyboard2)
+            message.chat.id, botMessages.notify_goodbye, reply_markup=keyboard1)
+    elif message.text == botMessages.keyboard_current_topic:
+        # TODO Check if input word exist in english
 
-# Refactored func with one transaction of word
+        bot.send_sticker(message.chat.id, botMessages.sticker_current_topic)
 
-# TODO hide to wordApi.py
+    else:
+        # TODO translate text
+        api = wordAPI.engWord()
+        translation = api.getTranslation(message.json["text"])
+        #translation = translator.translate(message.json["text"])
+        translation = html.unescape(translation)
+        bot.send_message(message.chat.id, translation)
+        # Refactored func with one transaction of word`
 
 
 def generateEngWord(message):
