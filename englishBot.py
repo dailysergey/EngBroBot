@@ -144,4 +144,11 @@ def sticker_id(message):
     print(message)
 
 
+job.run_daily(AutoResendMessages, datetime.time(8, 0, 0))
+job.run_daily(AutoResendMessages, datetime.time(11, 0, 0))
+job.run_daily(AutoResendMessages, datetime.time(10, 50, 0))
+job.run_daily(AutoResendMessages, datetime.time(12, 0, 0))
+job.run_daily(AutoResendMessages, datetime.time(16, 0, 0))
+job.run_daily(AutoResendMessages, datetime.time(20, 0, 0))
+
 bot.polling()
