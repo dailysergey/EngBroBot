@@ -42,6 +42,12 @@ class engWord:
             print(e)
             return data['word'], None
 
+    def getWordOnTopic(self,):
+        try:
+            url = 'http://api.datamuse.com/words?topics={}'.format(self.Topic)
+        except Exception as ex:
+            print(ex)
+
     def getTranscription(self):
         try:
             pass
@@ -84,7 +90,6 @@ class engWord:
 
             result = json.loads(response.text)[
                 'data']['translations'][0]['translatedText'].lower()
-            print(response)
 
             return result
         except Exception as er:
