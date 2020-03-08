@@ -127,17 +127,16 @@ def send_text(message):
         # Refactored func with one transaction of word`
 
 
-def generateEngWord(message):
+def generateEngWord(id):
     api = wordAPI.engWord()
     resultEngWord = api.getRandomWord()
-    data = json.loads(resultEngWord)
+    engWord, pronounce = resultEngWord
 
-    engWord = data['word']
-    # TODO Add here api for transcription generated english word
+    bot.send_message(id, engWord)
+    if pronounce is not None:
+        bot.send_message(id, "[ "+pronounce+" ]")
     translation = api.getTranslation(engWord)
-
-    bot.send_message(message.chat.id, engWord)
-    bot.send_message(message.chat.id, translation)
+    bot.send_message(id, translation)
 
 
 @bot.message_handler(content_types=['sticker'])
