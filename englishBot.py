@@ -79,10 +79,12 @@ def start_message(message):
 #
 # add field in user for TASK TO SEND NOTIFIES
 
+# TODO find all users where send_notifies=true and send on timer messages
 
-def checkSpamAndFlood(user_id):
 
-    return
+def AutoResendMessages():
+    for x in clients.find(filter={'send_notifies': 'true'}):
+        generateEngWord(x["id"])
 
 
 @bot.message_handler(content_types=['text'])
