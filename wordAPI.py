@@ -35,13 +35,37 @@ class engWord:
 
     def getTranslation(self, word):
         try:
+            # detect lang
+            url_detect = "https://translation.googleapis.com/language/translate/v2/detect"
+
+            word_encoded = urllib.parse.quote(word)
+            headers = {
+                'content-type': "application/x-www-form-urlencoded",
+                'cache-control': "no-cache"
+            }
+            payload = "q={}&key={}".format(
+                word_encoded, key.GoogleTranslationKey)
+            response = requests.request(
+                "POST", url_detect, data=payload, headers=headers)
+            print(response)
+            self.SourceLang = json.loads(response.text)[
+                'data']['detections'][0][0]['language']
+            if self.SourceLang == 'ru':
+                self.ResultLang = 'en'
+            else:
+                self.ResultLang = 'ru'
             # GOOGLE TRANSLATION API
             url = "https://translation.googleapis.com/language/translate/v2"
-            payload = "q={}&target={}&key={}".format(
-                word, self.ResultLang, key.GoogleTranslationKey)
-            headers = {'content-type': "application/x-www-form-urlencoded"}
+
+            payload = "q={}&target={}&key={}&source={}".format(
+                word_encoded, self.ResultLang, key.GoogleTranslationKey, self.SourceLang)
+            headers = {
+                'content-type': "application/x-www-form-urlencoded",
+                'cache-control': "no-cache"
+            }
             response = requests.request(
                 "POST", url, data=payload, headers=headers)
+
             result = json.loads(response.text)[
                 'data']['translations'][0]['translatedText'].lower()
             print(response)
