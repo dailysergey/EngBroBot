@@ -138,7 +138,51 @@ def send_text(message):
         # TODO Check if input word exist in english
 
         bot.send_sticker(message.chat.id, botMessages.sticker_current_topic)
-
+        # TODO instant dialog with user
+        bot.send_message(
+            message.chat.id, botMessages.topic_reply, reply_markup=keyboard3)
+    # region TOPIC
+    elif message.text == botMessages.topic_art:
+        clients.update({'id': user_id}, {"$set": {'topic': botMessages.topic_art}},
+                       upsert=True)
+        bot.send_message(user_id, botMessages.success_set_topic +
+                         botMessages.topic_art, reply_markup=keyboard2)
+    elif message.text == botMessages.topic_developer:
+        clients.update({'id': user_id}, {"$set": {'topic': botMessages.topic_developer}},
+                       upsert=True)
+        bot.send_message(user_id, botMessages.success_set_topic +
+                         botMessages.topic_developer, reply_markup=keyboard2)
+    elif message.text == botMessages.topic_education:
+        clients.update({'id': user_id}, {"$set": {'topic': botMessages.topic_education}},
+                       upsert=True)
+        bot.send_message(user_id, botMessages.success_set_topic +
+                         botMessages.topic_education, reply_markup=keyboard2)
+    elif message.text == botMessages.topic_economy:
+        clients.update({'id': user_id}, {"$set": {'topic': botMessages.topic_economy}},
+                       upsert=True)
+        bot.send_message(user_id, botMessages.success_set_topic +
+                         botMessages.topic_economy, reply_markup=keyboard2)
+    elif message.text == botMessages.topic_nature:
+        clients.update({'id': user_id}, {"$set": {'topic': botMessages.topic_nature}},
+                       upsert=True)
+        bot.send_message(user_id, botMessages.success_set_topic +
+                         botMessages.topic_nature, reply_markup=keyboard2)
+    elif message.text == botMessages.topic_politics:
+        clients.update({'id': user_id}, {"$set": {'topic': botMessages.topic_politics}},
+                       upsert=True)
+        bot.send_message(user_id, botMessages.success_set_topic +
+                         botMessages.topic_politics, reply_markup=keyboard2)
+    elif message.text == botMessages.topic_sport:
+        clients.update({'id': user_id}, {"$set": {'topic': botMessages.topic_sport}},
+                       upsert=True)
+        bot.send_message(user_id, botMessages.success_set_topic +
+                         botMessages.topic_sport, reply_markup=keyboard2)
+    elif message.text == botMessages.topic_science:
+        clients.update({'id': user_id}, {"$set": {'topic': botMessages.topic_science}},
+                       upsert=True)
+        bot.send_message(user_id, botMessages.success_set_topic +
+                         botMessages.topic_science, reply_markup=keyboard2)
+    # endregion
     else:
         # TODO translate text
         api = wordAPI.engWord()
