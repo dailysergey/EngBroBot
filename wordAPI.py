@@ -36,17 +36,29 @@ class engWord:
                 # check key 'all'
                 if pron.get('all') is not None:
                     pronounce = data['pronunciation']['all']
-                    return data['word'], pronounce       
+                    return data['word'], pronounce
             return data['word'], None
         except Exception as e:
             print(e)
             return data['word'], None
 
-    def getWordOnTopic(self,):
+    def getWordOnTopic(self, topic):
         try:
-            url = 'http://api.datamuse.com/words?topics={}'.format(self.Topic)
-        except Exception as ex:
-            print(ex)
+            url = "http://api.datamuse.com/words"
+            headers = {
+                'content-type': "application/x-www-form-urlencoded",
+                'cache-control': "no-cache"
+            }
+            payload = "q={}&max=15000".format(
+                topic)
+            response = requests.request(
+                "GET", url, headers=headers, params=payload)
+            data = json.loads(response.text)
+            print(data)
+            return ''
+        except Exception as exp:
+            print(exp)
+            return 'Возникла ошибка:{}'.format(exp.args)
 
     def getTranscription(self):
         try:
