@@ -43,6 +43,12 @@ keyboard2.row(botMessages.keyboard_hello_row1)
 keyboard2.row(botMessages.keyboard_current_topic)
 keyboard2.row(botMessages.keyboard_disable_noty_row3)
 
+keyboard3 = telebot.types.ReplyKeyboardMarkup(row_width=2)
+keyboard3.row(botMessages.topic_art, botMessages.topic_developer)
+keyboard3.row(botMessages.topic_education, botMessages.topic_economy)
+keyboard3.row(botMessages.topic_nature, botMessages.topic_politics)
+keyboard3.row(botMessages.topic_sport, botMessages.topic_science)
+
 
 @bot.message_handler(commands=['start'])
 def start_message(message):
@@ -99,8 +105,10 @@ def stop_message(message):
 
 
 def AutoResendMessages():
+    api = wordAPI.engWord()
     for x in clients.find(filter={'send_notifies': 'true'}):
         generateEngWord(x["id"])
+        api.getWordOnTopic(x["topic"])
 
 
 @bot.message_handler(content_types=['text'])
@@ -136,7 +144,6 @@ def send_text(message):
             message.chat.id, botMessages.notify_goodbye, reply_markup=keyboard1)
     elif message.text == botMessages.keyboard_current_topic:
         # TODO Check if input word exist in english
-
         bot.send_sticker(message.chat.id, botMessages.sticker_current_topic)
         # TODO instant dialog with user
         bot.send_message(
@@ -186,9 +193,7 @@ def send_text(message):
     else:
         # TODO translate text
         api = wordAPI.engWord()
-        translation = api.getTranslation(message.json["text"])
-        #translation = translator.translate(message.json["text"])
-        translation = html.unescape(translation)
+        translation = html.unescape(api.getTranslation(message.json["text"]))
         bot.send_message(message.chat.id, translation)
         # Refactored func with one transaction of word`
 
@@ -203,11 +208,6 @@ def generateEngWord(id):
         bot.send_message(id, "[ "+pronounce+" ]")
     translation = api.getTranslation(engWord)
     bot.send_message(id, translation)
-
-
-@bot.message_handler(content_types=['sticker'])
-def sticker_id(message):
-    print(message)
 
 
 job.run_daily(AutoResendMessages, datetime.time(8, 0, 0))
