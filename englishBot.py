@@ -82,6 +82,19 @@ def start_message(message):
         print(ex)
 
 
+@bot.message_handler(commands=['help'])
+def help_message(message):
+    bot.send_sticker(
+        message.chat.id, botMessages.sticker_help, reply_markup=keyboard2)
+    bot.send_message(
+        message.chat.id, botMessages.help_message, reply_markup=keyboard2)
+
+
+@bot.message_handler(commands=['stop'])
+def stop_message(message):
+    # TODO create column in table isStopped
+    pass
+
 # TODO find all users where send_notifies=true and send on timer messages
 
 
