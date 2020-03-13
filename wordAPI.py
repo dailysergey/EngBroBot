@@ -7,7 +7,7 @@ import logging
 import pprint
 from datetime import datetime
 import urllib
-
+from datamuse import datamuse
 logging.basicConfig(level=logging.DEBUG,
                     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
@@ -18,6 +18,7 @@ class engWord:
         self.ResultLang = 'ru'
         self.SourceLang = 'en'
         self.Topic = ''
+        self.datamuse = datamuse.Datamuse()
         self.url = "https://wordsapiv1.p.rapidapi.com/words/"
         self.headers = {'x-rapidapi-host': "wordsapiv1.p.rapidapi.com",
                         'x-rapidapi-key': key.WordApi}
@@ -42,20 +43,9 @@ class engWord:
             print(e)
             return data['word'], None
 
-    def getWordOnTopic(self, topic):
+    def getWordOnTopic(self, topic, position):
         try:
-            url = "http://api.datamuse.com/words"
-            headers = {
-                'content-type': "application/x-www-form-urlencoded",
-                'cache-control': "no-cache"
-            }
-            payload = "q={}&max=15000".format(
-                topic)
-            response = requests.request(
-                "GET", url, headers=headers, params=payload)
-            data = json.loads(response.text)
-            print(data)
-            return ''
+            return self.datamuse.words(ml=topic, max=1000)[position]['word']
         except Exception as exp:
             print(exp)
             return 'Возникла ошибка:{}'.format(exp.args)
