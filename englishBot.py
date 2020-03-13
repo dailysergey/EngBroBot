@@ -122,11 +122,17 @@ def send_text(message):
     api = wordAPI.engWord()
     user_id = message.json['from']['id']
     if message.text == botMessages.keyboard_hello_row1:
-        topic = clients.find(filter={'id': user_id})
-        nextWord = api.getWordOnTopic(topic)
+        for user in clients.find(filter={'id': user_id}):
+            topic = user['topic']
+            position = user['counter']
+            nextWord = api.getWordOnTopic(topic, position)
         translation = api.getTranslation(nextWord)
         bot.send_message(user_id, nextWord)
         bot.send_message(user_id, translation)
+            # update counter
+            position += 1
+            clients.update({'id': user_id}, {"$set": {'counter': position}},
+                           upsert=True)
 
     elif message.text == botMessages.keyboard_enable_noty_row3:
         # how to ask questions
