@@ -9,7 +9,6 @@ import tgClient
 import botMessages
 import time
 import threading
-import schedule
 import telegram.ext
 from telegram.ext import Updater
 import datetime
@@ -29,9 +28,6 @@ db = tgClient.MongoEntity().connect
 clients = db['clients']
 messages = db['message']
 score = db['score']
-# currentTopic
-currentTopic = ''
-Topic = botMessages.keyboard_current_topic + ' {}'.format(currentTopic)
 
 # Keyboard after first /Start
 keyboard1 = telebot.types.ReplyKeyboardMarkup(row_width=1)
@@ -126,9 +122,9 @@ def send_text(message):
             topic = user['topic']
             position = user['counter']
             nextWord = api.getWordOnTopic(topic, position)
-        translation = api.getTranslation(nextWord)
-        bot.send_message(user_id, nextWord)
-        bot.send_message(user_id, translation)
+            translation = api.getTranslation(nextWord)
+            bot.send_message(user_id, nextWord)
+            bot.send_message(user_id, translation)
             # update counter
             position += 1
             clients.update({'id': user_id}, {"$set": {'counter': position}},
@@ -138,11 +134,13 @@ def send_text(message):
         # how to ask questions
         clients.update({'id': user_id}, {"$set": {'send_notifies': 'true'}},
                        upsert=True)
+        clients.update({'id': user_id}, {"$set": {'counter': 1}},
+                       upsert=True)
         # send message to congrat
         bot.send_sticker(
             message.chat.id, botMessages.sticker_notify, reply_markup=keyboard2)
         bot.send_message(
-            message.chat.id, botMessages.notify_agreement, reply_markup=keyboard2)
+            message.chat.id, botMessages.notify_agreement, reply_markup=keyboard3)
 
     elif message.text == botMessages.keyboard_disable_noty_row3:
 
@@ -156,47 +154,46 @@ def send_text(message):
     elif message.text == botMessages.keyboard_current_topic:
         # TODO Check if input word exist in english
         bot.send_sticker(message.chat.id, botMessages.sticker_current_topic)
-        # TODO instant dialog with user
         bot.send_message(
             message.chat.id, botMessages.topic_reply, reply_markup=keyboard3)
     # region TOPIC
     elif message.text == botMessages.topic_art:
-        clients.update({'id': user_id}, {"$set": {'topic': botMessages.topic_art}},
+        clients.update({'id': user_id}, {"$set": {'topic': botMessages.topic_art, 'counter': 1}},
                        upsert=True)
         bot.send_message(user_id, botMessages.success_set_topic +
                          botMessages.topic_art, reply_markup=keyboard2)
     elif message.text == botMessages.topic_developer:
-        clients.update({'id': user_id}, {"$set": {'topic': botMessages.topic_developer}},
+        clients.update({'id': user_id}, {"$set": {'topic': botMessages.topic_developer, 'counter': 1}},
                        upsert=True)
         bot.send_message(user_id, botMessages.success_set_topic +
                          botMessages.topic_developer, reply_markup=keyboard2)
     elif message.text == botMessages.topic_education:
-        clients.update({'id': user_id}, {"$set": {'topic': botMessages.topic_education}},
+        clients.update({'id': user_id}, {"$set": {'topic': botMessages.topic_education, 'counter': 1}},
                        upsert=True)
         bot.send_message(user_id, botMessages.success_set_topic +
                          botMessages.topic_education, reply_markup=keyboard2)
     elif message.text == botMessages.topic_economy:
-        clients.update({'id': user_id}, {"$set": {'topic': botMessages.topic_economy}},
+        clients.update({'id': user_id}, {"$set": {'topic': botMessages.topic_economy, 'counter': 1}},
                        upsert=True)
         bot.send_message(user_id, botMessages.success_set_topic +
                          botMessages.topic_economy, reply_markup=keyboard2)
     elif message.text == botMessages.topic_nature:
-        clients.update({'id': user_id}, {"$set": {'topic': botMessages.topic_nature}},
+        clients.update({'id': user_id}, {"$set": {'topic': botMessages.topic_nature, 'counter': 1}},
                        upsert=True)
         bot.send_message(user_id, botMessages.success_set_topic +
                          botMessages.topic_nature, reply_markup=keyboard2)
     elif message.text == botMessages.topic_politics:
-        clients.update({'id': user_id}, {"$set": {'topic': botMessages.topic_politics}},
+        clients.update({'id': user_id}, {"$set": {'topic': botMessages.topic_politics, 'counter': 1}},
                        upsert=True)
         bot.send_message(user_id, botMessages.success_set_topic +
                          botMessages.topic_politics, reply_markup=keyboard2)
     elif message.text == botMessages.topic_sport:
-        clients.update({'id': user_id}, {"$set": {'topic': botMessages.topic_sport}},
+        clients.update({'id': user_id}, {"$set": {'topic': botMessages.topic_sport, 'counter': 1}},
                        upsert=True)
         bot.send_message(user_id, botMessages.success_set_topic +
                          botMessages.topic_sport, reply_markup=keyboard2)
     elif message.text == botMessages.topic_science:
-        clients.update({'id': user_id}, {"$set": {'topic': botMessages.topic_science}},
+        clients.update({'id': user_id}, {"$set": {'topic': botMessages.topic_science, 'counter': 1}},
                        upsert=True)
         bot.send_message(user_id, botMessages.success_set_topic +
                          botMessages.topic_science, reply_markup=keyboard2)
@@ -206,7 +203,7 @@ def send_text(message):
         api = wordAPI.engWord()
         translation = html.unescape(api.getTranslation(message.json["text"]))
         bot.send_message(message.chat.id, translation)
-        # Refactored func with one transaction of word`
+        # Refactored func with one transaction of word
 
 
 def generateEngWord(id):
