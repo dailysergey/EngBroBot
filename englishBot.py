@@ -107,8 +107,13 @@ def stop_message(message):
 def AutoResendMessages():
     api = wordAPI.engWord()
     for x in clients.find(filter={'send_notifies': 'true'}):
+        position = x["counter"]
+        topic = x["topic"]
         generateEngWord(x["id"])
-        api.getWordOnTopic(x["topic"])
+        api.getWordOnTopic(topic, position)
+        position += 1
+        clients.update({'id': x["id"]}, {"$set": {'counter': position}},
+                       upsert=True)
 
 
 @bot.message_handler(content_types=['text'])
