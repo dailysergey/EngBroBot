@@ -79,7 +79,7 @@ def start_message(message):
                 message.chat.id, botMessages.sticker_hello_text)
             # send message hello
             bot.send_message(
-                message.chat.id, botMessages.hello_text, reply_markup=keyboard1)
+                message.chat.id, botMessages.hello_text, reply_markup=keyboard3)
     except Exception as ex:
         print(ex)
 
@@ -157,47 +157,11 @@ def send_text(message):
         bot.send_message(
             message.chat.id, botMessages.topic_reply, reply_markup=keyboard3)
     # region TOPIC
-    elif message.text == botMessages.topic_art:
-        clients.update({'id': user_id}, {"$set": {'topic': botMessages.topic_art, 'counter': 1}},
+    elif message.text in botMessages.topics:
+        clients.update({'id': user_id}, {"$set": {'topic': message.text, 'counter': 1}},
                        upsert=True)
         bot.send_message(user_id, botMessages.success_set_topic +
-                         botMessages.topic_art, reply_markup=keyboard2)
-    elif message.text == botMessages.topic_developer:
-        clients.update({'id': user_id}, {"$set": {'topic': botMessages.topic_developer, 'counter': 1}},
-                       upsert=True)
-        bot.send_message(user_id, botMessages.success_set_topic +
-                         botMessages.topic_developer, reply_markup=keyboard2)
-    elif message.text == botMessages.topic_education:
-        clients.update({'id': user_id}, {"$set": {'topic': botMessages.topic_education, 'counter': 1}},
-                       upsert=True)
-        bot.send_message(user_id, botMessages.success_set_topic +
-                         botMessages.topic_education, reply_markup=keyboard2)
-    elif message.text == botMessages.topic_economy:
-        clients.update({'id': user_id}, {"$set": {'topic': botMessages.topic_economy, 'counter': 1}},
-                       upsert=True)
-        bot.send_message(user_id, botMessages.success_set_topic +
-                         botMessages.topic_economy, reply_markup=keyboard2)
-    elif message.text == botMessages.topic_nature:
-        clients.update({'id': user_id}, {"$set": {'topic': botMessages.topic_nature, 'counter': 1}},
-                       upsert=True)
-        bot.send_message(user_id, botMessages.success_set_topic +
-                         botMessages.topic_nature, reply_markup=keyboard2)
-    elif message.text == botMessages.topic_politics:
-        clients.update({'id': user_id}, {"$set": {'topic': botMessages.topic_politics, 'counter': 1}},
-                       upsert=True)
-        bot.send_message(user_id, botMessages.success_set_topic +
-                         botMessages.topic_politics, reply_markup=keyboard2)
-    elif message.text == botMessages.topic_sport:
-        clients.update({'id': user_id}, {"$set": {'topic': botMessages.topic_sport, 'counter': 1}},
-                       upsert=True)
-        bot.send_message(user_id, botMessages.success_set_topic +
-                         botMessages.topic_sport, reply_markup=keyboard2)
-    elif message.text == botMessages.topic_science:
-        clients.update({'id': user_id}, {"$set": {'topic': botMessages.topic_science, 'counter': 1}},
-                       upsert=True)
-        bot.send_message(user_id, botMessages.success_set_topic +
-                         botMessages.topic_science, reply_markup=keyboard2)
-    # endregion
+                         message.text, reply_markup=keyboard2)
     else:
         # TODO translate text
         api = wordAPI.engWord()
