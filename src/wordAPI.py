@@ -19,9 +19,6 @@ class engWord:
         self.SourceLang = 'en'
         self.Topic = ''
         self.datamuse = datamuse.Datamuse()
-        self.url = "https://wordsapiv1.p.rapidapi.com/words/"
-        self.headers = {'x-rapidapi-host': "wordsapiv1.p.rapidapi.com",
-                        'x-rapidapi-key': key.WordApi}
 
     def getRandomWord(self):
         try:
@@ -57,18 +54,15 @@ class engWord:
             print(ex)
             return 'Возникла ошибка:{}'.format(ex.args)
 
-    def getTranslation(self, word):
+    def detectLanguage(self, word):
         try:
-            # detect lang
             url_detect = "https://translation.googleapis.com/language/translate/v2/detect"
-
-            word_encoded = urllib.parse.quote(word)
             headers = {
                 'content-type': "application/x-www-form-urlencoded",
                 'cache-control': "no-cache"
             }
             payload = "q={}&key={}".format(
-                word_encoded, key.GoogleTranslationKey)
+                word, key.GoogleTranslationKey)
             response = requests.request(
                 "POST", url_detect, data=payload, headers=headers)
             print(response)
@@ -78,22 +72,29 @@ class engWord:
                 self.ResultLang = 'en'
             else:
                 self.ResultLang = 'ru'
+        except Exception as exp:
+            logging.error(exp)
+            return "Возникла ошибка при определении языка: {}".format(exp)
+
+    def getTranslation(self, word):
+        try:
+            # encode word
+            word = urllib.parse.quote(word)
+            # detect lang
+            self.detectLanguage(word)
             # GOOGLE TRANSLATION API
             url = "https://translation.googleapis.com/language/translate/v2"
-
             payload = "q={}&target={}&key={}&source={}".format(
-                word_encoded, self.ResultLang, key.GoogleTranslationKey, self.SourceLang)
+                word, self.ResultLang, key.GoogleTranslationKey, self.SourceLang)
             headers = {
                 'content-type': "application/x-www-form-urlencoded",
                 'cache-control': "no-cache"
             }
             response = requests.request(
                 "POST", url, data=payload, headers=headers)
-
             result = json.loads(response.text)[
-                'data']['translations'][0]['translatedText'].lower()
-
+                'data']['translations'][0]['translatedText']
             return result
-        except Exception as er:
-            print(er)
-            return "Возникла ошибка при переводе"
+        except Exception as exp:
+            logging.error(exp)
+            return "Возникла ошибка при переводе:{}".format(exp)
