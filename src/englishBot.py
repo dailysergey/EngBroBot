@@ -162,6 +162,7 @@ def send_text(message):
                        upsert=True)
         bot.send_message(user_id, botMessages.success_set_topic +
                          message.text, reply_markup=keyboard2)
+                         
     else:
         # TODO translate text
         api = wordAPI.engWord()
