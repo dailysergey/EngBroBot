@@ -163,9 +163,15 @@ def send_text(message):
     elif message.text in botMessages.topics:
         clients.update({'id': user_id}, {"$set": {'topic': message.text, 'counter': 1}},
                        upsert=True)
+        if user_id == int(key.adminKey):
         bot.send_message(user_id, botMessages.success_set_topic +
+                             message.text, reply_markup=keyboard4)
+
+        else:
+            bot.send_message(user_id, botMessages.success_set_topic +
                          message.text, reply_markup=keyboard2)
-                         
+    elif user_id == int(key.adminKey) and message.text == botMessages.send_everybody:
+        AutoResendMessages()
     else:
         # TODO translate text
         api = wordAPI.engWord()
