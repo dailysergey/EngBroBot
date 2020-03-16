@@ -121,18 +121,7 @@ def send_text(message):
     api = wordAPI.engWord()
     user_id = message.json['from']['id']
     if message.text == botMessages.keyboard_hello_row1:
-        for user in clients.find(filter={'id': user_id}):
-            topic = user['topic']
-            position = user['counter']
-            nextWord = api.getWordOnTopic(topic, position)
-            translation = api.getTranslation(nextWord)
-            bot.send_message(user_id, nextWord)
-            bot.send_message(user_id, translation)
-            # update counter
-            position += 1
-            clients.update({'id': user_id}, {"$set": {'counter': position}},
-                           upsert=True)
-
+        teachNewEnglishWord(api, user_id)
     elif message.text == botMessages.keyboard_enable_noty_row3:
         # how to ask questions
         clients.update({'id': user_id}, {"$set": {'send_notifies': 'true'}},
@@ -164,12 +153,12 @@ def send_text(message):
         clients.update({'id': user_id}, {"$set": {'topic': message.text, 'counter': 1}},
                        upsert=True)
         if user_id == int(key.adminKey):
-        bot.send_message(user_id, botMessages.success_set_topic +
+            bot.send_message(user_id, botMessages.success_set_topic +
                              message.text, reply_markup=keyboard4)
 
         else:
             bot.send_message(user_id, botMessages.success_set_topic +
-                         message.text, reply_markup=keyboard2)
+                             message.text, reply_markup=keyboard2)
     elif user_id == int(key.adminKey) and message.text == botMessages.send_everybody:
         AutoResendMessages()
     else:
