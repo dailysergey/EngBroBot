@@ -42,10 +42,20 @@ class engWord:
 
     def getWordOnTopic(self, topic, position):
         try:
-            return self.datamuse.words(ml=topic, max=1000)[position]['word']
+            url = "http://api.datamuse.com/words"
+            querystring = {"ml": topic,
+                           "max": self.MaxWords, "md": "r", "ipa": "1"}
+            headers = {'cache-control': "no-cache"}
+            response = requests.request(
+                "GET", url,  headers=headers, params=querystring)
+            words = json.loads(response.text)
+            tags = words[position]['tags']
+            transcripton = '['+tags[len(tags)-1].split(':')[1]+']'
+            word = words[position]['word']
+            return transcripton, word
         except Exception as exp:
             print(exp)
-            return 'Возникла ошибка:{}'.format(exp.args)
+            return 'Возникла ошибка:{}'.format(exp.args), None
 
     def getTranscription(self):
         try:
