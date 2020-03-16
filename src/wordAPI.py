@@ -18,6 +18,7 @@ class engWord:
         self.ResultLang = 'ru'
         self.SourceLang = 'en'
         self.Topic = ''
+        self.MaxWords = 1000
         self.datamuse = datamuse.Datamuse()
 
     def getRandomWord(self):
@@ -75,7 +76,7 @@ class engWord:
                 word, key.GoogleTranslationKey)
             response = requests.request(
                 "POST", url_detect, data=payload, headers=headers)
-            print(response)
+
             self.SourceLang = json.loads(response.text)[
                 'data']['detections'][0][0]['language']
             if self.SourceLang == 'ru':
