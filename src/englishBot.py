@@ -45,6 +45,12 @@ keyboard3.row(botMessages.topic_education, botMessages.topic_economy)
 keyboard3.row(botMessages.topic_nature, botMessages.topic_politics)
 keyboard3.row(botMessages.topic_sport, botMessages.topic_science)
 
+keyboard4 = telebot.types.ReplyKeyboardMarkup(row_width=1)
+keyboard4.row(botMessages.keyboard_hello_row1)
+keyboard4.row(botMessages.keyboard_current_topic)
+keyboard4.row(botMessages.keyboard_disable_noty_row3)
+keyboard4.row(botMessages.send_everybody)
+
 
 @bot.message_handler(commands=['start'])
 def start_message(message):
