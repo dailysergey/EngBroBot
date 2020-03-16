@@ -109,13 +109,10 @@ def stop_message(message):
 def AutoResendMessages():
     api = wordAPI.engWord()
     for x in clients.find(filter={'send_notifies': 'true'}):
-        position = x["counter"]
-        topic = x["topic"]
-        generateEngWord(x["id"])
-        api.getWordOnTopic(topic, position)
-        position += 1
-        clients.update({'id': x["id"]}, {"$set": {'counter': position}},
-                       upsert=True)
+        user_id = x["id"]
+        if user_id == int(key.adminKey):
+            continue
+        teachNewEnglishWord(api, user_id)
 
 
 @bot.message_handler(content_types=['text'])
