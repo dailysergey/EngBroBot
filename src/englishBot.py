@@ -180,6 +180,25 @@ def send_text(message):
         # Refactored func with one transaction of word
 
 
+def teachNewEnglishWord(api, user_id):
+    for user in clients.find(filter={'id': user_id}):
+        topic = user['topic']
+        position = user['counter']
+        transcription, nextWord = api.getWordOnTopic(topic, position)
+        if nextWord is None:
+            return
+
+        translation = api.getTranslation(nextWord)
+        newWord = '{} - {} - {}'.format(nextWord,
+                                        transcription, translation)
+        bot.send_message(user_id, newWord)
+
+        # update counter
+        position += 1
+        clients.update({'id': user_id}, {"$set": {'counter': position}},
+                       upsert=True)
+
+
 def generateEngWord(id):
     api = wordAPI.engWord()
     resultEngWord = api.getRandomWord()
