@@ -126,7 +126,8 @@ def send_media(message):
 @bot.callback_query_handler(func=lambda call: True)
 def handle_query(call):
     if call.data == '👍':
-        messages.update_one(filter={"user_id":call.message.chat.id},update=)
+        messages.update_one(filter={"user_id": call.message.chat.id}, update={
+                            '$push': {'new_words': call.message.text}}, upsert=True)
         bot.edit_message_text(chat_id=call.message.chat.id,
                               text=call.message.text,
                               message_id=call.message.message_id,
@@ -134,6 +135,8 @@ def handle_query(call):
                               parse_mode='HTML')
 
     if call.data == '👎':
+        messages.update_one(filter={"user_id": call.message.chat.id}, update={
+                            '$push': {'known_words': call.message.text}}, upsert=True)
         bot.edit_message_text(chat_id=call.message.chat.id,
                               text=call.message.text,
                               message_id=call.message.message_id,
