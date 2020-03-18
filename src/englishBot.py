@@ -115,6 +115,13 @@ def AutoResendMessages():
         teachNewEnglishWord(api, user_id)
 
 
+@bot.message_handler(content_types=['photo'])
+def send_media(message):
+    print(message)
+    bot.send_photo(message.chat.id,
+                   message.photo[len(message.photo)-1].file_id)
+
+
 @bot.message_handler(content_types=['text'])
 def send_text(message):
     # get user_id
@@ -167,6 +174,10 @@ def send_text(message):
         translation = html.unescape(api.getTranslation(message.json["text"]))
         bot.send_message(message.chat.id, translation)
         # Refactored func with one transaction of word
+
+
+def getUsersInfo(user_id):
+    clients
 
 
 def teachNewEnglishWord(api, user_id):
