@@ -207,6 +207,20 @@ def getUsersInfo(user_id):
     clients
 
 
+def rateKeyboard(state=None):
+    markup = types.InlineKeyboardMarkup()
+    if state == None:
+        markup.add(types.InlineKeyboardButton(text='👍', callback_data='👍'),
+                   types.InlineKeyboardButton(text='👎', callback_data='👎'))
+    if state == True:
+        markup.add(types.InlineKeyboardButton(
+            text='❤️Your answer is very important for us❤️', callback_data='👍'))
+    elif state == False:
+        markup.add(types.InlineKeyboardButton(
+            text='❤️Every day we get better with your help❤️', callback_data='👍'))
+    return markup
+
+
 def teachNewEnglishWord(api, user_id):
     for user in clients.find(filter={'id': user_id}):
         topic = user['topic']
