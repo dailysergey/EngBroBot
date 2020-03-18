@@ -50,6 +50,7 @@ keyboard4.row(botMessages.keyboard_hello_row1)
 keyboard4.row(botMessages.keyboard_current_topic)
 keyboard4.row(botMessages.keyboard_disable_noty_row3)
 keyboard4.row(botMessages.send_everybody)
+keyboard4.row(botMessages.get_stats)
 
 
 @bot.message_handler(commands=['start'])
@@ -106,7 +107,7 @@ def stop_message(message):
 # TODO find all users where send_notifies=true and send on timer messages
 
 
-def AutoResendMessages():
+def autoResendMessages():
     api = wordAPI.engWord()
     for x in clients.find(filter={'send_notifies': 'true'}):
         user_id = x["id"]
@@ -167,7 +168,11 @@ def send_text(message):
             bot.send_message(user_id, botMessages.success_set_topic +
                              message.text, reply_markup=keyboard2)
     elif user_id == int(key.adminKey) and message.text == botMessages.send_everybody:
-        AutoResendMessages()
+        autoResendMessages()
+    elif user_id == int(key.adminKey) and message.text == botMessages.get_stats:
+        for x in clients.find(filter={'send_notifies': 'true'}):
+            userInfo = 'user_id:{};Name:{}'.format(x["id"], x["first_name"])
+
     else:
         # TODO translate text
         api = wordAPI.engWord()
@@ -189,9 +194,9 @@ def teachNewEnglishWord(api, user_id):
             return
 
         translation = api.getTranslation(nextWord)
-        newWord = '{} - {} - {}'.format(nextWord,
-                                        transcription, translation)
-        bot.send_message(user_id, newWord)
+        newWord = '<b>{}</b> - {} - <b>{}</b>'.format(nextWord,
+                                                      transcription, translation)
+        bot.send_message(user_id, newWord, parse_mode=telegram.ParseMode.HTML)
 
         # update counter
         position += 1
@@ -211,11 +216,11 @@ def generateEngWord(id):
     bot.send_message(id, translation)
 
 
-job.run_daily(AutoResendMessages, datetime.time(8, 0, 0))
-job.run_daily(AutoResendMessages, datetime.time(11, 0, 0))
-job.run_daily(AutoResendMessages, datetime.time(10, 50, 0))
-job.run_daily(AutoResendMessages, datetime.time(12, 0, 0))
-job.run_daily(AutoResendMessages, datetime.time(16, 0, 0))
-job.run_daily(AutoResendMessages, datetime.time(20, 0, 0))
+job.run_daily(autoResendMessages, datetime.time(8, 0, 0))
+job.run_daily(autoResendMessages, datetime.time(11, 0, 0))
+job.run_daily(autoResendMessages, datetime.time(10, 50, 0))
+job.run_daily(autoResendMessages, datetime.time(12, 0, 0))
+job.run_daily(autoResendMessages, datetime.time(16, 0, 0))
+job.run_daily(autoResendMessages, datetime.time(20, 0, 0))
 
 bot.polling()
