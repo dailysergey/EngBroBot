@@ -13,7 +13,7 @@ import telegram.ext
 from telegram.ext import Updater
 import datetime
 import html
-
+from telebot import types
 
 logging.basicConfig(level=logging.DEBUG,
                     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
@@ -232,7 +232,8 @@ def teachNewEnglishWord(api, user_id):
         translation = api.getTranslation(nextWord)
         newWord = '<b>{}</b> - {} - <b>{}</b>'.format(nextWord,
                                                       transcription, translation)
-        bot.send_message(user_id, newWord, parse_mode=telegram.ParseMode.HTML)
+        bot.send_message(
+            user_id, newWord, parse_mode=telegram.ParseMode.HTML, reply_markup=rateKeyboard())
 
         # update counter
         position += 1
