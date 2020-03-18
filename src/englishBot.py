@@ -123,6 +123,28 @@ def send_media(message):
                    message.photo[len(message.photo)-1].file_id)
 
 
+@bot.callback_query_handler(func=lambda call: True)
+def handle_query(call):
+    if call.data == '👍':
+        messages.update_one(filter={"user_id":call.message.chat.id},update=)
+        bot.edit_message_text(chat_id=call.message.chat.id,
+                              text=call.message.text,
+                              message_id=call.message.message_id,
+                              reply_markup=rateKeyboard(True),
+                              parse_mode='HTML')
+
+    if call.data == '👎':
+        bot.edit_message_text(chat_id=call.message.chat.id,
+                              text=call.message.text,
+                              message_id=call.message.message_id,
+                              reply_markup=rateKeyboard(False),
+                              parse_mode='HTML')
+
+#    bot.answer_callback_query(callback_query_id=call.id,
+#                                show_alert=True,
+#                                text="You Clicked {} ".format(call.data))
+
+
 @bot.message_handler(content_types=['text'])
 def send_text(message):
     # get user_id
