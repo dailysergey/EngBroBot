@@ -94,7 +94,7 @@ def send_media(message):
 def handle_query(call):
     if 'yes' in call.data:
         messages.update_one(filter={"user_id": call.message.chat.id}, update={
-                            '$push': {'new_words': call.message.text}}, upsert=True)
+                            '$push': {'known_words': call.message.text}}, upsert=True)
         bot.edit_message_text(chat_id=call.message.chat.id,
                               text=call.message.text,
                               message_id=call.message.message_id,
@@ -103,7 +103,7 @@ def handle_query(call):
 
     if 'no' in call.data:
         messages.update_one(filter={"user_id": call.message.chat.id}, update={
-                            '$push': {'known_words': call.message.text}}, upsert=True)
+                            '$push': {'new_words': call.message.text}}, upsert=True)
         bot.edit_message_text(chat_id=call.message.chat.id,
                               text=call.message.text,
                               message_id=call.message.message_id,
