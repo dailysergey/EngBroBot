@@ -161,8 +161,10 @@ def send_text(message):
     elif user_id == int(key.adminKey) and message.text == botMessages.send_everybody:
         handlers.autoResendMessages(bot, clients)
     elif user_id == int(key.adminKey) and message.text == botMessages.get_stats:
-        for x in clients.find(filter={'send_notifies': 'true'}):
-            userInfo = 'user_id:{};Name:{}'.format(x["id"], x["first_name"])
+        for user in clients.find():
+            for sms_stat in messages.find(filter={"user_id": user["id"]}):
+                userInfo = handlers.getUsersInfo(user, sms_stat)
+                bot.send_message(user_id, userInfo)
 
     else:
         # TODO translate text
