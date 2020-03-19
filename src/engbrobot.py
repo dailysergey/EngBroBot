@@ -173,5 +173,4 @@ def send_text(message):
         bot.send_message(message.chat.id, translation)
 
 
-
 bot.polling()
