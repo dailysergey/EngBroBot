@@ -54,26 +54,26 @@ def teachNewEnglishWord(api, user_id, bot, clients):
 
 # Get info about users (for admins)
 def getUsersInfo(user, message):
-	userInfo = ""
-	if user["id"] is not None:
-		id = user["id"]
-		userInfo += "User ID:{};".format(id)
-	if user["first_name"] is not None:
-		first_name = user["first_name"]
-		userInfo += " First Name:{}; ".format(first_name)
-	if user["send_notifies"] is not None:
-		notify = user["send_notifies"]
-		userInfo += " Send notifies:{}; ".format(notify)
-	if message["new_words"] is not None:
-		new_words = message["new_words"]
-		userInfo += "New words:{};".format(new_words)
-	if message["known_words"] is not None:
-		known_words = message["known_words"]
-		userInfo += " Known words:{}; ".format(known_words)
-	if user["topic"] is not None:
-		topic = user["topic"]
-		userInfo += " Topic:{}; ".format(topic)
-	if user["counter"] is not None:
-		topic = user["counter"]
-		userInfo += "Counter:{};".format(counter)
+    userInfo = ""
+    if user["id"] is not None:
+        id = user["id"]
+        userInfo += "User ID:{};".format(id)
+    if user["first_name"] is not None:
+        first_name = user["first_name"]
+        userInfo += " First Name:{}; ".format(first_name)
+    if user["send_notifies"] is not None:
+        notify = user["send_notifies"]
+        userInfo += " Send notifies:{}; ".format(notify)
+    if message["new_words"] is not None:
+        new_words = message["new_words"]
+        userInfo += "New words:{};".format(new_words)
+    if message["known_words"] is not None:
+        known_words = message["known_words"]
+        userInfo += " Known words:{}; ".format(known_words)
+    if user["topic"] is not None:
+        topic = user["topic"]
+        userInfo += " Topic:{}; ".format(topic)
+    if user["counter"] is not None:
+        counter = user["counter"]
+        userInfo += "Counter:{};".format(counter)
     return userInfo
