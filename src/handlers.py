@@ -55,25 +55,25 @@ def teachNewEnglishWord(api, user_id, bot, clients):
 # Get info about users (for admins)
 def getUsersInfo(user, message):
     userInfo = ""
-    if user["id"] is not None:
+    if "id" in user:
         id = user["id"]
         userInfo += "User ID:{};".format(id)
-    if user["first_name"] is not None:
+    if "first_name" in user:
         first_name = user["first_name"]
         userInfo += " First Name:{}; ".format(first_name)
-    if user["send_notifies"] is not None:
+    if "send_notifies" in user:
         notify = user["send_notifies"]
         userInfo += " Send notifies:{}; ".format(notify)
-    if message["new_words"] is not None:
+    if "new_words" in message:
         new_words = message["new_words"]
         userInfo += "New words:{};".format(new_words)
-    if message["known_words"] is not None:
+    if "known_words" in message:
         known_words = message["known_words"]
         userInfo += " Known words:{}; ".format(known_words)
-    if user["topic"] is not None:
+    if "topic" in user:
         topic = user["topic"]
         userInfo += " Topic:{}; ".format(topic)
-    if user["counter"] is not None:
+    if "counter" in user:
         counter = user["counter"]
         userInfo += "Counter:{};".format(counter)
     return userInfo
