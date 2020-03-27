@@ -5,7 +5,7 @@ urllib3
 logging
 telebot
 json
-tensorflow==1.15
+tensorflow==1.15.2
 keras
 numpy
 pillow
