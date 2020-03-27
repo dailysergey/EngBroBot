@@ -1,6 +1,5 @@
 import logging.handlers
 import logging
-import telebot
 import wordAPI
 import key
 import json
@@ -9,12 +8,16 @@ import tgClient
 import botMessages
 import time
 import threading
-import telegram.ext
-from telegram.ext import Updater
 import datetime
 import html
 import handlers
 import kb
+import telebot
+import telegram.ext
+from telegram.ext import Updater
+from telebot import apihelper
+import imageai
+
 
 logging.basicConfig(level=logging.DEBUG,
                     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
@@ -29,7 +32,7 @@ db = tgClient.MongoEntity().connect
 clients = db['clients']
 messages = db['message']
 score = db['score']
-
+imageAI = imageai.ImageObjects()
 
 @bot.message_handler(commands=['start'])
 def start_message(message):
@@ -85,9 +88,13 @@ def stop_message(message):
 
 @bot.message_handler(content_types=['photo'])
 def send_media(message):
-    print(message)
-    bot.send_photo(message.chat.id,
-                   message.photo[len(message.photo)-1].file_id)
+    photoName = "{}.jpg".format(message.chat.id)
+    #filepath = "./user_data/" + name
+    largest_photo = message.photo[-1].get_file()
+    largest_photo.download(photoName)
+    resultImage = imageAI.detect(photoName)
+    print(resultImage)
+    bot.send_photo(message.chat.id, photo=open(resultImage, "rb"))
 
 
 @bot.callback_query_handler(func=lambda call: True)
