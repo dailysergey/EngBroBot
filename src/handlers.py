@@ -4,7 +4,8 @@ import wordAPI
 import tgClient
 import key
 import telegram.ext
-
+from gtts import gTTS
+import os
 
 # TODO find all users where send_notifies=true and send on timer messages
 def autoResendMessages(bot, clients):
@@ -51,6 +52,15 @@ def teachNewEnglishWord(api, user_id, bot, clients):
         clients.update({'id': user_id}, {"$set": {'counter': position}},
                        upsert=True)
 
+def sendTextToSpeech(bot, word, user_id):
+    out_file = "{}.mp3".format(word)
+    textToSpeech(word, out_file)
+    bot.send_audio(user_id, audio=open(out_file, "rb"))
+    os.remove(out_file)
+
+def textToSpeech(word, out_file):
+    tts = gTTS(word, lang="en")
+    tts.save(out_file)
 
 # Get info about users (for admins)
 def getUsersInfo(user, message):
