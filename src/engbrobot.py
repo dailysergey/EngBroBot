@@ -16,7 +16,7 @@ import telebot
 import telegram.ext
 from telegram.ext import Updater
 #from telebot import apihelper
-import detector
+import detect
 
 
 logging.basicConfig(level=logging.DEBUG,
@@ -32,7 +32,7 @@ db = tgClient.MongoEntity().connect
 clients = db['clients']
 messages = db['message']
 score = db['score']
-imageAI = detector.ImageObjects()
+imageAI = detect.ImageObjects()
 
 @bot.message_handler(commands=['start'])
 def start_message(message):
