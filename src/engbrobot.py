@@ -15,8 +15,8 @@ import kb
 import telebot
 import telegram.ext
 from telegram.ext import Updater
-from telebot import apihelper
-import imageai
+#from telebot import apihelper
+import detector
 
 
 logging.basicConfig(level=logging.DEBUG,
@@ -32,7 +32,7 @@ db = tgClient.MongoEntity().connect
 clients = db['clients']
 messages = db['message']
 score = db['score']
-imageAI = imageai.ImageObjects()
+imageAI = detector.ImageObjects()
 
 @bot.message_handler(commands=['start'])
 def start_message(message):
@@ -74,6 +74,8 @@ def start_message(message):
 
 @bot.message_handler(commands=['help'])
 def help_message(message):
+    logging.info('help_message:From {}.Text:{}'.format(
+            message.chat.id, message.json['text']))
     bot.send_sticker(
         message.chat.id, botMessages.sticker_help, reply_markup=kb.keyboard2)
     bot.send_message(
