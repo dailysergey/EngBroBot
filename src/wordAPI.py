@@ -21,25 +21,6 @@ class engWord:
         self.MaxWords = 1000
         self.datamuse = datamuse.Datamuse()
 
-    def getRandomWord(self):
-        try:
-            url = "https://wordsapiv1.p.rapidapi.com/words/"
-            headers = {'x-rapidapi-host': "wordsapiv1.p.rapidapi.com",
-                       'x-rapidapi-key': key.WordApi}
-            querystring = {"random": "true"}
-            response = requests.request(
-                "GET", url, headers=headers, params=querystring)
-            data = json.loads(response.text)
-            if data.get('pronunciation') is not None:
-                pron = data['pronunciation']
-                # check key 'all'
-                if pron.get('all') is not None:
-                    pronounce = data['pronunciation']['all']
-                    return data['word'], pronounce
-            return data['word'], None
-        except Exception as e:
-            print(e)
-            return data['word'], None
 
     def getWordOnTopic(self, topic, position):
         try:
@@ -58,12 +39,6 @@ class engWord:
             print(exp)
             return 'Возникла ошибка:{}'.format(exp.args), None
 
-    def getTranscription(self):
-        try:
-            pass
-        except Exception as ex:
-            print(ex)
-            return 'Возникла ошибка:{}'.format(ex.args)
 
     def detectLanguage(self, word):
         try:
