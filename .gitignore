@@ -133,4 +133,4 @@ key.py
 botMessages.py
 
 #model
-src/RetinaNetModel/
+src/objectDetection/
