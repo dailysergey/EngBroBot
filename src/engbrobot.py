@@ -17,7 +17,7 @@ import telegram.ext
 from telegram.ext import Updater
 #from telebot import apihelper
 import detect
-
+import os
 
 logging.basicConfig(level=logging.DEBUG,
                     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
@@ -33,6 +33,7 @@ clients = db['clients']
 messages = db['message']
 score = db['score']
 imageAI = detect.ImageObjects()
+
 
 @bot.message_handler(commands=['start'])
 def start_message(message):
@@ -75,7 +76,7 @@ def start_message(message):
 @bot.message_handler(commands=['help'])
 def help_message(message):
     logging.info('help_message:From {}.Text:{}'.format(
-            message.chat.id, message.json['text']))
+        message.chat.id, message.json['text']))
     bot.send_sticker(
         message.chat.id, botMessages.sticker_help, reply_markup=kb.keyboard2)
     bot.send_message(
@@ -90,11 +91,15 @@ def stop_message(message):
 
 @bot.message_handler(content_types=['photo'])
 def send_media(message):
+    execution_path = os.getcwd()
     photoName = "{}.jpg".format(message.chat.id)
     #filepath = "./user_data/" + name
     largest_photo = message.photo[-1].get_file()
-    largest_photo.download(photoName)
-    resultImage = imageAI.detect(photoName)
+    photo_path = os.path.join(
+        execution_path, "src""objectDetection", "input", photoName)
+
+    largest_photo.download(photo_path)
+    resultImage = imageAI.detect(photo_path)
     print(resultImage)
     bot.send_photo(message.chat.id, photo=open(resultImage, "rb"))
 
