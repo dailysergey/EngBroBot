@@ -8,13 +8,6 @@ from gtts import gTTS
 import os
 
 # TODO find all users where send_notifies=true and send on timer messages
-def autoResendMessages(bot, clients):
-    api = wordAPI.engWord()
-    for x in clients.find(filter={'send_notifies': 'true'}):
-        user_id = x["id"]
-        if user_id == int(key.adminKey):
-            continue
-        teachNewEnglishWord(api, user_id, bot, clients)
 
 
 # Creates dynamic keyboard after sending user new eng word
@@ -46,11 +39,12 @@ def teachNewEnglishWord(api, user_id, bot, clients):
                                                       transcription, translation)
         bot.send_message(
             user_id, newWord, parse_mode=telegram.ParseMode.HTML, reply_markup=rateKeyboard())
-
+        sendTextToSpeech(bot, nextWord, user_id)
         # update counter
         position += 1
         clients.update({'id': user_id}, {"$set": {'counter': position}},
                        upsert=True)
+
 
 def sendTextToSpeech(bot, word, user_id):
     out_file = "{}.mp3".format(word)
@@ -58,11 +52,14 @@ def sendTextToSpeech(bot, word, user_id):
     bot.send_audio(user_id, audio=open(out_file, "rb"))
     os.remove(out_file)
 
+
 def textToSpeech(word, out_file):
     tts = gTTS(word, lang="en")
     tts.save(out_file)
 
 # Get info about users (for admins)
+
+
 def getUsersInfo(user, message):
     userInfo = ""
     if "id" in user:
