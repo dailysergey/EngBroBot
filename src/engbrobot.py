@@ -1,3 +1,4 @@
+from telegram.ext import Updater, CommandHandler
 import logging.handlers
 import logging
 import wordAPI
@@ -15,8 +16,8 @@ import kb
 import telebot
 import telegram.ext
 from telegram.ext import Updater
-#from telebot import apihelper
-import detect
+# from telebot import apihelper
+# import detect
 import os
 
 logging.basicConfig(level=logging.DEBUG,
@@ -24,15 +25,14 @@ logging.basicConfig(level=logging.DEBUG,
 
 # Initialize
 bot = telebot.TeleBot(key.API_skipper)
-updater = Updater(key.API_skipper, use_context=True)
-job = updater.job_queue
+
 
 # Global Connect to MONGO
 db = tgClient.MongoEntity().connect
 clients = db['clients']
 messages = db['message']
 score = db['score']
-imageAI = detect.ImageObjects()
+# imageAI = detect.ImageObjects()
 
 
 @bot.message_handler(commands=['start'])
@@ -71,6 +71,8 @@ def start_message(message):
                 message.chat.id, botMessages.hello_text, reply_markup=kb.keyboard3)
     except Exception as ex:
         print(ex)
+        logging.error('start_message:From {}.Text:{}'.format(
+            message.chat.id, message.json['text']))
 
 
 @bot.message_handler(commands=['help'])
@@ -93,10 +95,10 @@ def stop_message(message):
 def send_media(message):
     execution_path = os.getcwd()
     photoName = "{}.jpg".format(message.chat.id)
-    #filepath = "./user_data/" + name
+    # filepath = "./user_data/" + name
     largest_photo = message.photo[-1].get_file()
     photo_path = os.path.join(
-        execution_path, "src""objectDetection", "input", photoName)
+        execution_path, "src", "objectDetection", "input", photoName)
 
     largest_photo.download(photo_path)
     resultImage = imageAI.detect(photo_path)
@@ -106,23 +108,27 @@ def send_media(message):
 
 @bot.callback_query_handler(func=lambda call: True)
 def handle_query(call):
-    if 'yes' in call.data:
-        messages.update_one(filter={"user_id": call.message.chat.id}, update={
-                            '$push': {'known_words': call.message.text}}, upsert=True)
-        bot.edit_message_text(chat_id=call.message.chat.id,
-                              text=call.message.text,
-                              message_id=call.message.message_id,
-                              reply_markup=handlers.rateKeyboard(True),
-                              parse_mode='HTML')
+    try:
+        if 'yes' in call.data:
+            messages.update_one(filter={"user_id": call.message.chat.id}, update={
+                                '$push': {'known_words': call.message.text}}, upsert=True)
+            bot.edit_message_text(chat_id=call.message.chat.id,
+                                  text=call.message.text,
+                                  message_id=call.message.message_id,
+                                  reply_markup=handlers.rateKeyboard(True),
+                                  parse_mode='HTML')
 
-    if 'no' in call.data:
-        messages.update_one(filter={"user_id": call.message.chat.id}, update={
-                            '$push': {'new_words': call.message.text}}, upsert=True)
-        bot.edit_message_text(chat_id=call.message.chat.id,
-                              text=call.message.text,
-                              message_id=call.message.message_id,
-                              reply_markup=handlers.rateKeyboard(False),
-                              parse_mode='HTML')
+        if 'no' in call.data:
+            messages.update_one(filter={"user_id": call.message.chat.id}, update={
+                                '$push': {'new_words': call.message.text}}, upsert=True)
+            bot.edit_message_text(chat_id=call.message.chat.id,
+                                  text=call.message.text,
+                                  message_id=call.message.message_id,
+                                  reply_markup=handlers.rateKeyboard(False),
+                                  parse_mode='HTML')
+    except Exception as ex:
+        print(ex)
+        logging.error('[Handle_query]: Error {}.'.format(ex))
 
 #    bot.answer_callback_query(callback_query_id=call.id,
 #                                show_alert=True,
@@ -185,6 +191,50 @@ def send_text(message):
         api = wordAPI.engWord()
         translation = html.unescape(api.getTranslation(message.json["text"]))
         bot.send_message(message.chat.id, translation)
+
+
+# def callback_alarm(bot, job):
+#     bot.send_message(chat_id=job.context, text='Wait for another 10 Seconds')
+
+
+# def callback_timer(bot, update, job_queue):
+#     bot.send_message(chat_id=update.message.chat_id,
+#                      text='Wait for 10 seconds')
+#     job_queue.run_repeating(callback_minute, 10,
+#                             context=update.message.chat_id)
+def callback_timer(bot, update, job_queue):
+    bot.send_message(chat_id='161408126',
+                     text='Wait for 10 seconds')
+    job_queue.run_repeating(callback_minute, 10,
+                            context='161408126')
+
+
+def callback_minute(context: telegram.ext.CallbackContext):
+    context.bot.send_message(chat_id='161408126',
+                             text='A single message with 30s delay')
+    # api = wordAPI.engWord()
+    # for x in clients.find(filter={'send_notifies': 'true'}):
+    #     user_id = x["id"]
+    #     if user_id == int(key.adminKey):
+    #         continue
+    #     handlers.teachNewEnglishWord(api, user_id, context.bot, clients)
+
+
+updater = Updater(key.API_skipper, use_context=True)
+updater.dispatcher.add_handler(CommandHandler(
+    'start', callback_timer, pass_job_queue=True))
+
+
+# def Stop_timer(bot, update, job_queue):
+#     bot.send_message(chat_id=update.message.chat_id,
+#                       text='Soped!')
+#     job_queue.stop()
+
+# updater = Updater("YOUR_TOKEN")
+# updater.dispatcher.add_handler(CommandHandler('start', callback_timer, pass_job_queue=True))
+# updater.dispatcher.add_handler(CommandHandler('stop', Stop_timer, pass_job_queue=True))
+
+# updater.start_polling()
 
 
 bot.polling()
