@@ -10,6 +10,15 @@ import os
 # TODO find all users where send_notifies=true and send on timer messages
 
 
+def autoResendMessages(bot, clients):
+    api = wordAPI.engWord()
+    for x in clients.find(filter={'send_notifies': 'true'}):
+        user_id = x["id"]
+        if user_id == int(key.adminKey):
+            continue
+        teachNewEnglishWord(api, user_id, bot, clients)
+
+
 # Creates dynamic keyboard after sending user new eng word
 def rateKeyboard(state=None):
     markup = types.InlineKeyboardMarkup()
