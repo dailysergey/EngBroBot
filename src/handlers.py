@@ -46,11 +46,14 @@ def teachNewEnglishWord(api, user_id, bot, clients):
         translation = api.getTranslation(nextWord)
         newWord = '<b>{}</b> - {} - <b>{}</b>'.format(nextWord,
                                                       transcription, translation)
+        reply_markup = rateKeyboard()
         bot.send_message(
-            user_id, newWord, parse_mode=telegram.ParseMode.HTML, reply_markup=rateKeyboard())
+            user_id, newWord, parse_mode=telegram.ParseMode.HTML, reply_markup=reply_markup)
         sendTextToSpeech(bot, nextWord, user_id)
+
         # update counter
         position += 1
+        reply_markup = None
         clients.update({'id': user_id}, {"$set": {'counter': position}},
                        upsert=True)
 

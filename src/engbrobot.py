@@ -229,20 +229,14 @@ def callback_minute(context: telegram.ext.CallbackContext):
 
 
 updater = Updater(key.API_skipper, use_context=True)
-updater.dispatcher.add_handler(CommandHandler(
-    'start', callback_timer, pass_job_queue=True))
+# Get the dispatcher to register handlers
+job = updater.job_queue
 
 
-# def Stop_timer(bot, update, job_queue):
-#     bot.send_message(chat_id=update.message.chat_id,
-#                       text='Soped!')
-#     job_queue.stop()
-
-# updater = Updater("YOUR_TOKEN")
-# updater.dispatcher.add_handler(CommandHandler('start', callback_timer, pass_job_queue=True))
-# updater.dispatcher.add_handler(CommandHandler('stop', Stop_timer, pass_job_queue=True))
-
-# updater.start_polling()
+def callback_minute(context: telegram.ext.CallbackContext):
+    handlers.autoResendMessages(context.bot, clients)
 
 
+job.run_repeating(callback_minute, interval=60, first=0)
+job.start()
 bot.polling()
