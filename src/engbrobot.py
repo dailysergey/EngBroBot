@@ -95,19 +95,19 @@ def stop_message(message):
 def send_media(message):
     try:
         execution_path = os.getcwd()
-        # filepath = "./user_data/" + name
         image = bot.get_file(message.photo[len(message.photo)-1].file_id)
         photoName = "{}.jpg".format(message.chat.id)
-        #largest_photo = message.photo[-1].get_file()
         photo_path = os.path.join(
             execution_path, "src", "objectDetection", "input", photoName)
 
         downloaded_image = bot.download_file(image.file_path)
+
         with open(photo_path, 'wb') as new_file:
             new_file.write(downloaded_image)
-        # largest_photo.download(photo_path)
+        logging.info('Saved photo to {}'.format(photo_path))
         resultImage = imageAI.detect(photoName)
-        print(resultImage)
+        logging.info('Sending photo to {} with photo from {}'.format(
+            message.chat.id, resultImage))
         bot.send_photo(message.chat.id, photo=open(resultImage, "rb"))
     except Exception as ex:
         print(ex)
