@@ -17,7 +17,7 @@ import telebot
 import telegram.ext
 from telegram.ext import Updater
 # from telebot import apihelper
-# import detect
+import detect
 import os
 
 logging.basicConfig(level=logging.DEBUG,
@@ -32,7 +32,7 @@ db = tgClient.MongoEntity().connect
 clients = db['clients']
 messages = db['message']
 score = db['score']
-# imageAI = detect.ImageObjects()
+imageAI = detect.ImageObjects()
 
 
 @bot.message_handler(commands=['start'])
@@ -94,21 +94,21 @@ def stop_message(message):
 @bot.message_handler(content_types=['photo'])
 def send_media(message):
     try:
-    execution_path = os.getcwd()
-    # filepath = "./user_data/" + name
+        execution_path = os.getcwd()
+        # filepath = "./user_data/" + name
         image = bot.get_file(message.photo[len(message.photo)-1].file_id)
         photoName = "{}.jpg".format(message.chat.id)
         #largest_photo = message.photo[-1].get_file()
-    photo_path = os.path.join(
-        execution_path, "src", "objectDetection", "input", photoName)
+        photo_path = os.path.join(
+            execution_path, "src", "objectDetection", "input", photoName)
 
         downloaded_image = bot.download_file(image.file_path)
         with open(photo_path, 'wb') as new_file:
             new_file.write(downloaded_image)
         # largest_photo.download(photo_path)
         resultImage = imageAI.detect(photoName)
-    print(resultImage)
-    bot.send_photo(message.chat.id, photo=open(resultImage, "rb"))
+        print(resultImage)
+        bot.send_photo(message.chat.id, photo=open(resultImage, "rb"))
     except Exception as ex:
         print(ex)
         logging.error('[Send media(photo)]: Error {}.'.format(ex))
