@@ -16,7 +16,6 @@ import kb
 import telebot
 import telegram.ext
 from telegram.ext import Updater
-# from telebot import apihelper
 import detect
 import os
 
@@ -199,33 +198,6 @@ def send_text(message):
         api = wordAPI.engWord()
         translation = html.unescape(api.getTranslation(message.json["text"]))
         bot.send_message(message.chat.id, translation)
-
-
-# def callback_alarm(bot, job):
-#     bot.send_message(chat_id=job.context, text='Wait for another 10 Seconds')
-
-
-# def callback_timer(bot, update, job_queue):
-#     bot.send_message(chat_id=update.message.chat_id,
-#                      text='Wait for 10 seconds')
-#     job_queue.run_repeating(callback_minute, 10,
-#                             context=update.message.chat_id)
-def callback_timer(bot, update, job_queue):
-    bot.send_message(chat_id='161408126',
-                     text='Wait for 10 seconds')
-    job_queue.run_repeating(callback_minute, 10,
-                            context='161408126')
-
-
-def callback_minute(context: telegram.ext.CallbackContext):
-    context.bot.send_message(chat_id='161408126',
-                             text='A single message with 30s delay')
-    # api = wordAPI.engWord()
-    # for x in clients.find(filter={'send_notifies': 'true'}):
-    #     user_id = x["id"]
-    #     if user_id == int(key.adminKey):
-    #         continue
-    #     handlers.teachNewEnglishWord(api, user_id, context.bot, clients)
 
 
 updater = Updater(key.API_skipper, use_context=True)
