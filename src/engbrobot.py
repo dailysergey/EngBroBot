@@ -69,8 +69,7 @@ def start_message(message):
             bot.send_message(
                 message.chat.id, botMessages.hello_text, reply_markup=kb.keyboard3)
     except Exception as ex:
-        print(ex)
-        logging.error('start_message:From {}.Text:{}'.format(
+        logging.error('[Error]: {}. From {}.Text:{}'.format(ex,
             message.chat.id, message.json['text']))
 
 
@@ -129,8 +128,9 @@ def handle_query(call):
             bot.edit_message_text(chat_id=call.message.chat.id,
                                   text=call.message.text,
                                   message_id=call.message.message_id,
-                                  reply_markup=kb.rateKeyboard(True),
-                                  parse_mode='HTML')
+                                  parse_mode=telegram.ParseMode.HTML,
+                                  reply_markup=kb.rateKeyboard(True).to_json()
+                                  )
 
         if 'no' in call.data:
             messages.update_one(filter={"user_id": call.message.chat.id}, update={
@@ -138,8 +138,13 @@ def handle_query(call):
             bot.edit_message_text(chat_id=call.message.chat.id,
                                   text=call.message.text,
                                   message_id=call.message.message_id,
-                                  reply_markup=kb.rateKeyboard(False),
-                                  parse_mode='HTML')
+                                  parse_mode=telegram.ParseMode.HTML,
+                                  reply_markup=kb.rateKeyboard(
+                                      False).to_json()
+                                  )
+        else:
+            logging.info(
+                "Get another message from inline mode: {}".format(call.data))
     except Exception as ex:
         print(ex)
         logging.error('[Handle_query]: Error {}.'.format(ex))
@@ -147,11 +152,11 @@ def handle_query(call):
 
 @bot.message_handler(content_types=['text'])
 def send_text(message):
-    # get user_id
     api = wordAPI.engWord()
     userId = message.json['from']['id']
     if message.text == botMessages.keyboard_hello_row1:
         handlers.teachNewEnglishWord(api, userId, bot, clients)
+
     elif message.text == botMessages.keyboard_enable_noty_row3:
         # how to ask questions
         clients.update({'id': userId}, {"$set": {'send_notifies': 'true'}},
@@ -173,11 +178,12 @@ def send_text(message):
             message.chat.id, botMessages.sticker_notify_goodbye)
         bot.send_message(
             message.chat.id, botMessages.notify_goodbye, reply_markup=kb.keyboard1)
+
     elif message.text == botMessages.keyboard_current_topic:
-        # TODO Check if input word exist in english
         bot.send_sticker(message.chat.id, botMessages.sticker_current_topic)
         bot.send_message(
             message.chat.id, botMessages.topic_reply, reply_markup=kb.keyboard3)
+
     # region TOPIC
     elif message.text in botMessages.topics:
         clients.update({'id': userId}, {"$set": {'topic': message.text, 'counter': 1}},
@@ -188,8 +194,10 @@ def send_text(message):
         else:
             bot.send_message(userId, botMessages.success_set_topic +
                              message.text, reply_markup=kb.keyboard2)
+
     elif userId == int(key.adminKey) and message.text == botMessages.send_everybody:
         handlers.autoResendMessages(bot, clients)
+
     elif userId == int(key.adminKey) and message.text == botMessages.get_stats:
         for user in clients.find():
             for sms_stat in messages.find(filter={"user_id": user["id"]}):
@@ -197,7 +205,7 @@ def send_text(message):
                 bot.send_message(userId, userInfo)
 
     else:
-        # TODO translate text
+        # translate text
         api = wordAPI.engWord()
         translation = html.unescape(api.getTranslation(message.json["text"]))
         bot.send_message(message.chat.id, translation)
@@ -217,4 +225,4 @@ def callback_resender(context: telegram.ext.CallbackContext):
 job.run_repeating(
     callback_resender, interval=datetime.timedelta(hours=2), first=0)
 job.start()
-bot.polling()
+bot.infinity_polling()
