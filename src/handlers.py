@@ -1,11 +1,15 @@
-from telebot import types
+
 import botMessages
 import wordAPI
 import tgClient
 import key
+import kb
 import telegram.ext
 from gtts import gTTS
 import os
+import logging
+logging.basicConfig(level=logging.DEBUG,
+                    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
 # TODO find all users where send_notifies=true and send on timer messages
 
@@ -13,25 +17,10 @@ import os
 def autoResendMessages(bot, clients):
     api = wordAPI.engWord()
     for x in clients.find(filter={'send_notifies': 'true'}):
-        user_id = x["id"]
-        if user_id == int(key.adminKey):
-            continue
-        teachNewEnglishWord(api, user_id, bot, clients)
-
-
-# Creates dynamic keyboard after sending user new eng word
-def rateKeyboard(state=None):
-    markup = types.InlineKeyboardMarkup()
-    if state == None:
-        markup.add(types.InlineKeyboardButton(text=botMessages.rate_default_one, callback_data='yes'),
-                   types.InlineKeyboardButton(text=botMessages.rate_default_two, callback_data='no'))
-    if state == True:
-        markup.add(types.InlineKeyboardButton(
-            text=botMessages.rateYes, callback_data='yes'))
-    elif state == False:
-        markup.add(types.InlineKeyboardButton(
-            text=botMessages.rateNo, callback_data='no'))
-    return markup
+        userId = x["id"]
+        # if user_id == int(key.adminKey):
+        #     continue
+        teachNewEnglishWord(api, userId, bot, clients)
 
 
 # Forming message for user
@@ -46,8 +35,15 @@ def teachNewEnglishWord(api, user_id, bot, clients):
         translation = api.getTranslation(nextWord)
         newWord = '<b>{}</b> - {} - <b>{}</b>'.format(nextWord,
                                                       transcription, translation)
-        # , parse_mode=telegram.ParseMode.HTML, reply_markup=reply_markup
-        bot.send_message(user_id, newWord)
+        keyBoard = kb.rateKeyboard()
+        try:
+            bot.send_message(
+                user_id, newWord, parse_mode=telegram.ParseMode.HTML, reply_markup=keyBoard)
+        except Exception as ex:
+            logging.error(ex)
+            bot.send_message(
+                user_id, newWord, parse_mode=telegram.ParseMode.HTML)
+
         sendTextToSpeech(bot, nextWord, user_id)
 
         # update counter
@@ -57,10 +53,10 @@ def teachNewEnglishWord(api, user_id, bot, clients):
 
 
 def sendTextToSpeech(bot, word, user_id):
-    out_file = "{}.mp3".format(word)
-    textToSpeech(word, out_file)
-    bot.send_audio(user_id, audio=open(out_file, "rb"))
-    os.remove(out_file)
+    outputFile = "{}.mp3".format(word)
+    textToSpeech(word, outputFile)
+    bot.send_audio(user_id, audio=open(outputFile, "rb"))
+    os.remove(outputFile)
 
 
 def textToSpeech(word, out_file):
