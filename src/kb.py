@@ -1,4 +1,5 @@
 # Keyboard after first /Start
+from telebot import types
 import botMessages
 import telebot.types
 
@@ -23,3 +24,20 @@ keyboard4.row(botMessages.keyboard_current_topic)
 keyboard4.row(botMessages.keyboard_disable_noty_row3)
 keyboard4.row(botMessages.send_everybody)
 keyboard4.row(botMessages.get_stats)
+
+# Creates dynamic keyboard after sending user new eng word
+
+
+def rateKeyboard(state=None):
+    markup = types.InlineKeyboardMarkup(row_width=1)
+    if state == None:
+        markup.add(types.InlineKeyboardButton(text=botMessages.rate_default_one, callback_data='yes'),
+                   types.InlineKeyboardButton(text=botMessages.rate_default_two, callback_data='no'))
+    if state == True:
+        markup.add(types.InlineKeyboardButton(
+            text=botMessages.rate_yes, callback_data='yes'))
+    elif state == False:
+        markup.add(types.InlineKeyboardButton(
+            text=botMessages.rate_no, callback_data='no'))
+
+    return markup
