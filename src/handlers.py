@@ -7,6 +7,8 @@ import kb
 import telegram.ext
 from gtts import gTTS
 import os
+from telebot import types
+import json
 import logging
 logging.basicConfig(level=logging.DEBUG,
                     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
@@ -35,15 +37,14 @@ def teachNewEnglishWord(api, user_id, bot, clients):
         translation = api.getTranslation(nextWord)
         newWord = '<b>{}</b> - {} - <b>{}</b>'.format(nextWord,
                                                       transcription, translation)
-        keyBoard = kb.rateKeyboard()
+        #keyBoard = kb.rateKeyboard()
         try:
             bot.send_message(
-                user_id, newWord, parse_mode=telegram.ParseMode.HTML, reply_markup=keyBoard)
+                user_id, newWord, parse_mode=telegram.ParseMode.HTML, reply_markup=kb.rateKeyboard().to_json())
         except Exception as ex:
             logging.error(ex)
             bot.send_message(
                 user_id, newWord, parse_mode=telegram.ParseMode.HTML)
-
         sendTextToSpeech(bot, nextWord, user_id)
 
         # update counter
