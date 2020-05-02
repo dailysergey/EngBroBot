@@ -28,7 +28,7 @@ keyboard4.row(botMessages.get_stats)
 
 # Creates dynamic keyboard after sending user new eng word
 def rateKeyboard(state=None):
-    markup = types.InlineKeyboardMarkup(row_width=1)
+    markup = types.InlineKeyboardMarkup(row_width=2)
     if state == None:
         yesBtn = types.InlineKeyboardButton(
             text=botMessages.rate_default_one, callback_data='yes')
