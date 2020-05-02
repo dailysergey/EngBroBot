@@ -142,6 +142,16 @@ def handle_query(call):
                                   reply_markup=kb.rateKeyboard(
                                       False).to_json()
                                   )
+        if 'Ru' in call.data:
+            bot.send_message(chat_id=call.message.chat.id,
+                             text=botMessages.help_message_ru,
+                             reply_markup=kb.keyboard2.to_json()
+                             )
+        if 'En' in call.data:
+            bot.send_message(chat_id=call.message.chat.id,
+                             text=botMessages.help_message_en,
+                             reply_markup=kb.keyboard2.to_json()
+                             )
         else:
             logging.info(
                 "Get another message from inline mode: {}".format(call.data))
