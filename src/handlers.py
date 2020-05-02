@@ -9,16 +9,15 @@ from gtts import gTTS
 import os
 from telebot import types
 import json
+import threading
 import logging
 logging.basicConfig(level=logging.DEBUG,
                     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
-# TODO find all users where send_notifies=true and send on timer messages
-
 
 def autoResendMessages(bot, clients):
     try:
-    api = wordAPI.engWord()
+        api = wordAPI.engWord()
         for client in clients.find(filter={'send_notifies': 'true'}):
             userId = client["id"]
             task = threading.Thread(
@@ -49,7 +48,6 @@ def teachNewEnglishWord(api, user_id, bot, clients):
             bot.send_message(
                 user_id, newWord, parse_mode=telegram.ParseMode.HTML)
         sendTextToSpeech(bot, nextWord, user_id)
-
         # update counter
         position += 1
         clients.update({'id': user_id}, {"$set": {'counter': position}},
