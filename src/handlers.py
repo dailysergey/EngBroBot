@@ -17,12 +17,15 @@ logging.basicConfig(level=logging.DEBUG,
 
 
 def autoResendMessages(bot, clients):
+    try:
     api = wordAPI.engWord()
-    for x in clients.find(filter={'send_notifies': 'true'}):
-        userId = x["id"]
-        # if user_id == int(key.adminKey):
-        #     continue
-        teachNewEnglishWord(api, userId, bot, clients)
+        for client in clients.find(filter={'send_notifies': 'true'}):
+            userId = client["id"]
+            task = threading.Thread(
+                target=teachNewEnglishWord, args=(api, userId, bot, clients))
+            task.start()
+    except Exception as ex:
+        logging.error(ex)
 
 
 # Forming message for user
