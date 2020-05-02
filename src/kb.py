@@ -43,3 +43,11 @@ def rateKeyboard(state=None):
             text=botMessages.rate_no, callback_data='no'))
 
     return markup
+
+
+def RuEnKeyboard():
+    langKeyBoard = types.InlineKeyboardMarkup(row_width=2)
+    btnRu = types.InlineKeyboardButton(text='🇷🇺', callback_data='Ru')
+    btnEn = types.InlineKeyboardButton(text='🇺🇸', callback_data='En')
+    langKeyBoard.add(btnRu, btnEn)
+    return langKeyBoard
