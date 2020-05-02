@@ -18,6 +18,7 @@ import telegram.ext
 from telegram.ext import Updater
 import detect
 import os
+from telebot import types
 
 logging.basicConfig(level=logging.DEBUG,
                     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
@@ -37,8 +38,6 @@ imageAI = detect.ImageObjects()
 @bot.message_handler(commands=['start'])
 def start_message(message):
     try:
-        # message.json["from"] - info about user from whom message
-        # message.json["text"] - actual text from user
         logging.info('start_message:From {}.Text:{}'.format(
             message.chat.id, message.json['text']))
         # get user_id
@@ -55,9 +54,9 @@ def start_message(message):
             bot.send_sticker(
                 message.chat.id, botMessages.sticker_hello_again)
             if language_code == 'ru':
-            bot.send_message(
+                bot.send_message(
                     message.chat.id, botMessages.hello_again_ru, reply_markup=kb.keyboard1)
-        else:
+            else:
                 bot.send_message(
                     message.chat.id, botMessages.hello_again_en, reply_markup=kb.keyboard1)
         # else: save NEW user to my db and send congrats to join
@@ -68,32 +67,33 @@ def start_message(message):
             clients.insert_one(user)
             # form message from user
             textDict = {'message_id': message.json['message_id'], 'user_id': userId,
-                         'date': message.json['date'], 'text': message.json['text']}
+                        'date': message.json['date'], 'text': message.json['text']}
             # store messages from user
             messages.insert_one(textDict)
             # send hello sticker
             bot.send_sticker(
                 message.chat.id, botMessages.sticker_hello_text)
             if language_code == 'ru':
-            # send message hello
-            bot.send_message(
+                # send message hello
+                bot.send_message(
                     message.chat.id, botMessages.hello_text_ru, reply_markup=kb.keyboard3)
             else:
                 bot.send_message(
                     message.chat.id, botMessages.hello_text_en, reply_markup=kb.keyboard3)
     except Exception as ex:
         logging.error('[Error]: {}. From {}.Text:{}'.format(ex,
-            message.chat.id, message.json['text']))
+                                                            message.chat.id, message.json['text']))
 
 
 @bot.message_handler(commands=['help'])
 def help_message(message):
-    logging.info('help_message:From {}.Text:{}'.format(
+    logging.info('[Help Command]:From {}.Text:{}'.format(
         message.chat.id, message.json['text']))
+
     bot.send_sticker(
-        message.chat.id, botMessages.sticker_help, reply_markup=kb.keyboard2)
+        message.chat.id, botMessages.sticker_help)
     bot.send_message(
-        message.chat.id, botMessages.help_message, reply_markup=kb.keyboard2)
+        message.chat.id, "Выберите язык / Choose language", reply_markup=kb.RuEnKeyboard().to_json())
 
 
 @bot.message_handler(commands=['stop'])
@@ -241,7 +241,7 @@ job = updater.job_queue
 
 def callback_resender(context: telegram.ext.CallbackContext):
     hour = datetime.datetime.now().hour
-    if hour < 20 and hour > 10:
+    if hour > 10 and hour < 20:
         handlers.autoResendMessages(context.bot, clients)
 
 
