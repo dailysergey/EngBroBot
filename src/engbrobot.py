@@ -42,32 +42,45 @@ def start_message(message):
         logging.info('start_message:From {}.Text:{}'.format(
             message.chat.id, message.json['text']))
         # get user_id
-        userId = message.json['from']['id']
+        userId = message.from_user.id
+        lc = message.from_user.language_code
         # check if user already send me 'START' message
-        if clients.find({'id': userId}).count() > 0:
+        language_code = lc is not None if lc else 'en'
+        foundUser = clients.find({'id': userId})
+        for fuser in foundUser:
+            language_code = fuser['language_code']
+        if foundUser.count() > 0:
             logging.info('start_message: Hello again block')
 
             bot.send_sticker(
                 message.chat.id, botMessages.sticker_hello_again)
+            if language_code == 'ru':
             bot.send_message(
-                message.chat.id, botMessages.hello_again, reply_markup=kb.keyboard1)
-        # else: save user to my db and send congrats to join
+                    message.chat.id, botMessages.hello_again_ru, reply_markup=kb.keyboard1)
+        else:
+                bot.send_message(
+                    message.chat.id, botMessages.hello_again_en, reply_markup=kb.keyboard1)
+        # else: save NEW user to my db and send congrats to join
         else:
             # save user
             user = message.json['from']
-            user['send_notifies'] = 'false'
+            user['send_notifies'] = 'true'
             clients.insert_one(user)
             # form message from user
-            text_dict = {'message_id': message.json['message_id'], 'user_id': userId,
+            textDict = {'message_id': message.json['message_id'], 'user_id': userId,
                          'date': message.json['date'], 'text': message.json['text']}
             # store messages from user
-            messages.insert_one(text_dict)
+            messages.insert_one(textDict)
             # send hello sticker
             bot.send_sticker(
                 message.chat.id, botMessages.sticker_hello_text)
+            if language_code == 'ru':
             # send message hello
             bot.send_message(
-                message.chat.id, botMessages.hello_text, reply_markup=kb.keyboard3)
+                    message.chat.id, botMessages.hello_text_ru, reply_markup=kb.keyboard3)
+            else:
+                bot.send_message(
+                    message.chat.id, botMessages.hello_text_en, reply_markup=kb.keyboard3)
     except Exception as ex:
         logging.error('[Error]: {}. From {}.Text:{}'.format(ex,
             message.chat.id, message.json['text']))
