@@ -52,11 +52,12 @@ def start_message(message):
             helloAgainMessage = botMessages.hello_again_ru if language_code == 'ru' else botMessages.hello_again_en
             bot.send_sticker(
                 message.chat.id, botMessages.sticker_hello_again)
-                bot.send_message(
+            bot.send_message(
                 message.chat.id, helloAgainMessage, reply_markup=keyBrd)
 
         # else: save NEW user to my db and send congrats to join
         else:
+            lc = message.from_user.language_code
             # save user
             user = message.json['from']
             user['send_notifies'] = 'true'
@@ -70,8 +71,8 @@ def start_message(message):
             bot.send_sticker(
                 message.chat.id, botMessages.sticker_hello_text)
             helloMessage = botMessages.hello_text_ru if lc == 'ru' else botMessages.hello_text_en
-                # send message hello
-                bot.send_message(
+            # send message hello
+            bot.send_message(
                 message.chat.id, helloMessage, reply_markup=kb.keyboard3)
     except Exception as ex:
         logging.error('[Error]: {}. From {}.Text:{}'.format(ex,
@@ -234,8 +235,8 @@ job = updater.job_queue
 
 def callback_resender(context: telegram.ext.CallbackContext):
     hour = datetime.datetime.now().hour
-    if hour > 10 and hour < 20:
-        handlers.autoResendMessages(context.bot, clients)
+    # if hour > 10 and hour < 20:
+    handlers.autoResendMessages(context.bot, clients)
 
 
 job.run_repeating(
