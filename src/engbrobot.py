@@ -42,23 +42,19 @@ def start_message(message):
             message.chat.id, message.json['text']))
         # get user_id
         userId = message.from_user.id
-        lc = message.from_user.language_code
-        # check if user already send me 'START' message
-        language_code = lc is not None if lc else 'en'
+
         foundUser = clients.find({'id': userId})
         for fuser in foundUser:
             language_code = fuser['language_code']
         if foundUser.count() > 0:
             logging.info('start_message: Hello again block')
-
+            keyBrd = kb.keyboard2 if fuser['send_notifies'] == 'true' else kb.keyboard1
+            helloAgainMessage = botMessages.hello_again_ru if language_code == 'ru' else botMessages.hello_again_en
             bot.send_sticker(
                 message.chat.id, botMessages.sticker_hello_again)
-            if language_code == 'ru':
                 bot.send_message(
-                    message.chat.id, botMessages.hello_again_ru, reply_markup=kb.keyboard1)
-            else:
-                bot.send_message(
-                    message.chat.id, botMessages.hello_again_en, reply_markup=kb.keyboard1)
+                message.chat.id, helloAgainMessage, reply_markup=keyBrd)
+
         # else: save NEW user to my db and send congrats to join
         else:
             # save user
@@ -73,13 +69,10 @@ def start_message(message):
             # send hello sticker
             bot.send_sticker(
                 message.chat.id, botMessages.sticker_hello_text)
-            if language_code == 'ru':
+            helloMessage = botMessages.hello_text_ru if lc == 'ru' else botMessages.hello_text_en
                 # send message hello
                 bot.send_message(
-                    message.chat.id, botMessages.hello_text_ru, reply_markup=kb.keyboard3)
-            else:
-                bot.send_message(
-                    message.chat.id, botMessages.hello_text_en, reply_markup=kb.keyboard3)
+                message.chat.id, helloMessage, reply_markup=kb.keyboard3)
     except Exception as ex:
         logging.error('[Error]: {}. From {}.Text:{}'.format(ex,
                                                             message.chat.id, message.json['text']))
