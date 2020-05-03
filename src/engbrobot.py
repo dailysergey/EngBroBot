@@ -164,7 +164,6 @@ def handle_query(call):
             logging.info(
                 "Get another message from inline mode: {}".format(call.data))
     except Exception as ex:
-        print(ex)
         logging.error('[Handle_query]: Error {}.'.format(ex))
 
 
