@@ -253,7 +253,14 @@ def callback_resender(context: telegram.ext.CallbackContext):
     handlers.autoResendMessages(context.bot, clients)
 
 
+def callback_reminder(context: telegram.ext.CallbackContext):
+    handlers.autoReminder(context.bot, clients)
+
+
 job.run_repeating(
     callback_resender, interval=datetime.timedelta(hours=2), first=0)
+# remind clients about myself
+job.run_repeating(callback_reminder,
+                  interval=datetime.timedelta(days=7), first=10800)
 job.start()
 bot.infinity_polling()
