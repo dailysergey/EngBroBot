@@ -27,7 +27,19 @@ def autoResendMessages(bot, clients):
         logging.error(ex)
 
 
+def autoReminder(bot, clients):
+    try:
+        for client in clients.find(filter={'send_notifies': 'false'}):
+            messageReminder = botMessages.reminder_ru if client[
+                'language_code'] == 'ru' else botMessages.reminder_en
+            bot.send_message(client['id'], messageReminder,
+                             reply_markup=kb.keyboard1)
+    except Exception as ex:
+        logging.error(ex)
+
 # Forming message for user
+
+
 def teachNewEnglishWord(api, user_id, bot, clients):
     for user in clients.find(filter={'id': user_id}):
         topic = user['topic']
