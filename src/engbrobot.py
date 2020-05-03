@@ -32,6 +32,7 @@ db = tgClient.MongoEntity().connect
 clients = db['clients']
 messages = db['message']
 score = db['score']
+topic = db['topic']
 imageAI = detect.ImageObjects()
 
 
@@ -165,6 +166,19 @@ def handle_query(call):
     except Exception as ex:
         print(ex)
         logging.error('[Handle_query]: Error {}.'.format(ex))
+
+
+@bot.message_handler(commands=['topic'])
+def suggest_topic(message):
+    try:
+        suggestedTopic = message.text.split(' ')
+        value = {'id':message.from_user.id,'topic': suggestedTopic[1]}
+        topic.insert_one(value)
+    except Exception as ex:
+        lc = message.from_user.language_code
+        logging.error(ex)
+        messageError = botMessages.errorTopicRu if lc == 'ru' else botMessages.errorTopicEn
+        bot.send_message(message.chat.id, messageError)
 
 
 @bot.message_handler(content_types=['text'])
