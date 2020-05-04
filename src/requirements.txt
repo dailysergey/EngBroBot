@@ -86,7 +86,7 @@ ssh-import-id==5.7
 systemd-python==234
 telebot==0.0.3
 tensorboard==1.12.2
-tensorflow==1.12.0
+tensorflow==1.15.2
 tensorflow-estimator==1.14.0
 tensorflow-gpu==1.13.1
 termcolor==1.1.0
