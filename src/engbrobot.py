@@ -111,7 +111,7 @@ def send_media(message):
         # name of input image
         photoName = "{}.jpg".format(message.chat.id)
         destinationInputPhotoPath = os.path.join(
-            currentDir, "src", "objectDetection", "input", photoName)
+            currentDir, "objectDetection", "input", photoName)
 
         downloadedImage = bot.download_file(inputImage.file_path)
 
@@ -171,8 +171,10 @@ def handle_query(call):
 def suggest_topic(message):
     try:
         suggestedTopic = message.text.split(' ')
-        value = {'id':message.from_user.id,'topic': suggestedTopic[1]}
+        value = {'id': message.from_user.id, 'topic': suggestedTopic[1]}
         topic.insert_one(value)
+        bot.send_message(
+            message.chat.id, 'Тема принята, спасибо! / Topic accepted, thanks!')
     except Exception as ex:
         lc = message.from_user.language_code
         logging.error(ex)
@@ -238,6 +240,7 @@ def send_text(message):
         # translate text
         api = wordAPI.engWord()
         translation = html.unescape(api.getTranslation(message.json["text"]))
+        handlers.sendTextToSpeech(bot, translation, userId)
         bot.send_message(message.chat.id, translation)
 
 
@@ -248,8 +251,8 @@ job = updater.job_queue
 
 def callback_resender(context: telegram.ext.CallbackContext):
     hour = datetime.datetime.now().hour
-    # if hour > 10 and hour < 20:
-    handlers.autoResendMessages(context.bot, clients)
+    if hour > 10 and hour < 22:
+        handlers.autoResendMessages(context.bot, clients)
 
 
 def callback_reminder(context: telegram.ext.CallbackContext):
@@ -262,4 +265,4 @@ job.run_repeating(
 job.run_repeating(callback_reminder,
                   interval=datetime.timedelta(days=7), first=10800)
 job.start()
-bot.infinity_polling()
+bot.infinity_polling(none_stop=True)
