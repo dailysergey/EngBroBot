@@ -11,6 +11,7 @@ from telebot import types
 import json
 import threading
 import logging
+import re
 logging.basicConfig(level=logging.DEBUG,
                     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
@@ -67,7 +68,7 @@ def teachNewEnglishWord(api, user_id, bot, clients):
 
 
 def sendTextToSpeech(bot, word, user_id):
-    outputFile = "{}.mp3".format(word)
+    outputFile = "{}.mp3".format(re.split(r"(\b[\w']+\b)(?:.+|$)", word)[1] )
     textToSpeech(word, outputFile)
     bot.send_audio(user_id, audio=open(outputFile, "rb"))
     os.remove(outputFile)
