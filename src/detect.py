@@ -11,11 +11,11 @@ class ImageObjects:
     def __init__(self):
         self.execution_path = os.getcwd()
         self.model_path = os.path.join(
-            self.execution_path, "src", "objectDetection", "model")
+            self.execution_path, "objectDetection", "model")
         self.input_image_path = os.path.join(
-            self.execution_path, "src", "objectDetection", "input")
+            self.execution_path, "objectDetection", "input")
         self.output_image_path = os.path.join(
-            self.execution_path, "src", "objectDetection", "output")
+            self.execution_path, "objectDetection", "output")
         logging.info("[ImageObjects]:Constructor for ImageObjects created.")
 
     def detect(self, imageName):
