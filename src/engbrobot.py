@@ -26,6 +26,9 @@ logging.basicConfig(level=logging.DEBUG,
 # Initialize
 bot = telebot.TeleBot(key.API_skipper)
 
+PORT = int(os.environ.get('PORT', '8443'))
+updater = Updater(key.API_skipper)
+
 
 # Global Connect to MONGO
 db = tgClient.MongoEntity().connect
@@ -258,11 +261,18 @@ def callback_resender(context: telegram.ext.CallbackContext):
 def callback_reminder(context: telegram.ext.CallbackContext):
     handlers.autoReminder(context.bot, clients)
 
+ import os
+
 
 job.run_repeating(
     callback_resender, interval=datetime.timedelta(hours=2), first=0)
 # remind clients about myself
 job.run_repeating(callback_reminder,
                   interval=datetime.timedelta(days=7), first=10800)
-job.start()
-bot.infinity_polling(none_stop=True)
+# add handlers
+updater.start_webhook(listen='127.0.0.1', port=5000, url_path=key.API_skipper)
+updater.bot.set_webhook(webhook_url='https://{}/{}'.format(key.HOST,key.API_skipper),
+                        certificate=open('/ssl/cert.pem', 'rb'))
+updater.idle()
+#job.start()
+#bot.infinity_polling(none_stop=True)
