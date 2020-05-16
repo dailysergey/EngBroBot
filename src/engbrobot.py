@@ -1,4 +1,4 @@
-from telegram.ext import Updater, CommandHandler
+from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 import logging.handlers
 import logging
 import wordAPI
@@ -26,8 +26,7 @@ logging.basicConfig(level=logging.DEBUG,
 # Initialize
 bot = telebot.TeleBot(key.API_skipper)
 
-PORT = int(os.environ.get('PORT', '8443'))
-updater = Updater(key.API_skipper)
+updater = Updater(key.API_skipper, use_context=True)
 
 
 # Global Connect to MONGO
@@ -39,13 +38,12 @@ topic = db['topic']
 imageAI = detect.ImageObjects()
 
 
-@bot.message_handler(commands=['start'])
-def start_message(message):
+def start_message(update, context):
     try:
         logging.info('start_message:From {}.Text:{}'.format(
-            message.chat.id, message.json['text']))
+            update.message.chat.id, update.message.json['text']))
         # get user_id
-        userId = message.from_user.id
+        userId = update.message.from_user.id
 
         foundUser = clients.find({'id': userId})
         for fuser in foundUser:
@@ -54,36 +52,35 @@ def start_message(message):
             logging.info('start_message: Hello again block')
             keyBrd = kb.keyboard2 if fuser['send_notifies'] == 'true' else kb.keyboard1
             helloAgainMessage = botMessages.hello_again_ru if language_code == 'ru' else botMessages.hello_again_en
-            bot.send_sticker(
-                message.chat.id, botMessages.sticker_hello_again)
+            update.message.send_sticker(
+                update.message.chat.id, botMessages.sticker_hello_again)
             bot.send_message(
-                message.chat.id, helloAgainMessage, reply_markup=keyBrd)
+                update.message.chat.id, helloAgainMessage, reply_markup=keyBrd)
 
         # else: save NEW user to my db and send congrats to join
         else:
-            lc = message.from_user.language_code
+            lc = update.message.from_user.language_code
             # save user
-            user = message.json['from']
+            user = update.message.json['from']
             user['send_notifies'] = 'true'
             clients.insert_one(user)
             # form message from user
-            textDict = {'message_id': message.json['message_id'], 'user_id': userId,
-                        'date': message.json['date'], 'text': message.json['text']}
+            textDict = {'message_id': update.message.json['message_id'], 'user_id': userId,
+                        'date': update.message.json['date'], 'text': message.json['text']}
             # store messages from user
             messages.insert_one(textDict)
             # send hello sticker
             bot.send_sticker(
-                message.chat.id, botMessages.sticker_hello_text)
+                update.message.chat.id, botMessages.sticker_hello_text)
             helloMessage = botMessages.hello_text_ru if lc == 'ru' else botMessages.hello_text_en
             # send message hello
             bot.send_message(
-                message.chat.id, helloMessage, reply_markup=kb.keyboard3)
+                update.message.chat.id, helloMessage, reply_markup=kb.keyboard3)
     except Exception as ex:
         logging.error('[Error]: {}. From {}.Text:{}'.format(ex,
-                                                            message.chat.id, message.json['text']))
+                                                            update.message.chat.id, update.message.json['text']))
 
 
-@bot.message_handler(commands=['help'])
 def help_message(message):
     logging.info('[Help Command]:From {}.Text:{}'.format(
         message.chat.id, message.json['text']))
@@ -94,7 +91,6 @@ def help_message(message):
         message.chat.id, "Выберите язык / Choose language", reply_markup=kb.RuEnKeyboard().to_json())
 
 
-@bot.message_handler(commands=['stop'])
 def stop_message(message):
     userId = message.json['from']['id']
     clients.update({'id': userId}, {"$set": {'send_notifies': 'false'}},
@@ -106,7 +102,6 @@ def stop_message(message):
         message.chat.id, botMessages.notify_goodbye, reply_markup=kb.keyboard1)
 
 
-@bot.message_handler(content_types=['photo'])
 def send_media(message):
     try:
         currentDir = os.getcwd()
@@ -130,7 +125,6 @@ def send_media(message):
         logging.error('[Send media(photo)]: Error {}.'.format(ex))
 
 
-@bot.callback_query_handler(func=lambda call: True)
 def handle_query(call):
     try:
         if 'yes' in call.data:
@@ -170,7 +164,6 @@ def handle_query(call):
         logging.error('[Handle_query]: Error {}.'.format(ex))
 
 
-@bot.message_handler(commands=['topic'])
 def suggest_topic(message):
     try:
         suggestedTopic = message.text.split(' ')
@@ -185,7 +178,6 @@ def suggest_topic(message):
         bot.send_message(message.chat.id, messageError)
 
 
-@bot.message_handler(content_types=['text'])
 def send_text(message):
     api = wordAPI.engWord()
     userId = message.json['from']['id']
@@ -247,7 +239,6 @@ def send_text(message):
         bot.send_message(message.chat.id, translation)
 
 
-updater = Updater(key.API_skipper, use_context=True)
 # Get the dispatcher to register handlers
 job = updater.job_queue
 
@@ -261,7 +252,9 @@ def callback_resender(context: telegram.ext.CallbackContext):
 def callback_reminder(context: telegram.ext.CallbackContext):
     handlers.autoReminder(context.bot, clients)
 
- import os
+
+def error(update, context):
+    logging.warning('update "%s" casused error "%s"', update, context.error)
 
 
 job.run_repeating(
@@ -269,10 +262,28 @@ job.run_repeating(
 # remind clients about myself
 job.run_repeating(callback_reminder,
                   interval=datetime.timedelta(days=7), first=10800)
+job.start()
 # add handlers
-updater.start_webhook(listen='127.0.0.1', port=5000, url_path=key.API_skipper)
-updater.bot.set_webhook(webhook_url='https://{}/{}'.format(key.HOST,key.API_skipper),
-                        certificate=open('/ssl/cert.pem', 'rb'))
-updater.idle()
-#job.start()
-#bot.infinity_polling(none_stop=True)
+updater = Updater(key.API_skipper, use_context=True)
+dp = updater.dispatcher
+try:
+    dp = updater.dispatcher
+    dp.add_handler(handler=CommandHandler("start", start_message))
+    dp.add_handler(handler=CommandHandler("help", help_message))
+    dp.add_handler(handler=CommandHandler("topic", suggest_topic))
+    dp.add_handler(handler=CommandHandler("stop", stop_message))
+    dp.add_handler(handler=MessageHandler(Filters.text, send_text))
+    dp.add_handler(handler=MessageHandler(Filters.photo, send_media))
+    dp.add_error_handler(error)
+    certssl = os.path.join(os.getcwd(), 'ssl', 'cert.pem')
+    keyssl = os.path.join(os.getcwd(), 'ssl', 'private.key')
+    print(certssl)
+    print(keyssl)
+    updater.start_webhook(listen='0.0.0.0', port=8443,
+                          url_path=key.API_skipper)
+    # ,key=keyssl, cert=certssl, webhook_url='https://{}/{}/'.format(key.HOST, key.API_skipper))
+    updater.bot.set_webhook(url='https://{}/{}/'.format(key.HOST,
+                                                        key.API_skipper), certificate=open(certssl, 'rb'))
+    updater.idle()
+except Exception as ex:
+    logging.error('Entered error in the end on engbrobot.py: {}'.format(ex))
