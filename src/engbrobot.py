@@ -1,4 +1,4 @@
-from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
+from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, CallbackQueryHandler
 import logging.handlers
 import logging
 import wordAPI
@@ -40,10 +40,11 @@ imageAI = detect.ImageObjects()
 
 def start_message(update, context):
     try:
+        message = update.message
         logging.info('start_message:From {}.Text:{}'.format(
-            update.message.chat.id, update.message.json['text']))
+            message.chat.id, message.text))
         # get user_id
-        userId = update.message.from_user.id
+        userId = message.from_user.id
 
         foundUser = clients.find({'id': userId})
         for fuser in foundUser:
@@ -52,47 +53,46 @@ def start_message(update, context):
             logging.info('start_message: Hello again block')
             keyBrd = kb.keyboard2 if fuser['send_notifies'] == 'true' else kb.keyboard1
             helloAgainMessage = botMessages.hello_again_ru if language_code == 'ru' else botMessages.hello_again_en
-            update.message.send_sticker(
-                update.message.chat.id, botMessages.sticker_hello_again)
+            bot.send_sticker(
+                message.chat.id, botMessages.sticker_hello_again)
             bot.send_message(
-                update.message.chat.id, helloAgainMessage, reply_markup=keyBrd)
+                message.chat.id, helloAgainMessage, reply_markup=keyBrd)
 
         # else: save NEW user to my db and send congrats to join
         else:
-            lc = update.message.from_user.language_code
+            lc = message.from_user.language_code
             # save user
-            user = update.message.json['from']
+            user = message.from_user
             user['send_notifies'] = 'true'
             clients.insert_one(user)
             # form message from user
-            textDict = {'message_id': update.message.json['message_id'], 'user_id': userId,
-                        'date': update.message.json['date'], 'text': message.json['text']}
+            textDict = {'message_id': message.message_id, 'user_id': userId,
+                        'date': message.date, 'text': message.text}
             # store messages from user
             messages.insert_one(textDict)
             # send hello sticker
             bot.send_sticker(
-                update.message.chat.id, botMessages.sticker_hello_text)
+                message.chat.id, botMessages.sticker_hello_text)
             helloMessage = botMessages.hello_text_ru if lc == 'ru' else botMessages.hello_text_en
             # send message hello
             bot.send_message(
-                update.message.chat.id, helloMessage, reply_markup=kb.keyboard3)
+                message.chat.id, helloMessage, reply_markup=kb.keyboard3)
     except Exception as ex:
         logging.error('[Error]: {}. From {}.Text:{}'.format(ex,
-                                                            update.message.chat.id, update.message.json['text']))
+                                                            message.chat.id, message.text))
 
 
-def help_message(message):
-    logging.info('[Help Command]:From {}.Text:{}'.format(
-        message.chat.id, message.json['text']))
-
+def help_message(update, context):
+    message = update.message
     bot.send_sticker(
         message.chat.id, botMessages.sticker_help)
     bot.send_message(
         message.chat.id, "Выберите язык / Choose language", reply_markup=kb.RuEnKeyboard().to_json())
 
 
-def stop_message(message):
-    userId = message.json['from']['id']
+def stop_message(update, context):
+    message = update.message
+    userId = message.from_user.id
     clients.update({'id': userId}, {"$set": {'send_notifies': 'false'}},
                    upsert=True)
     # send message to say goodbye
@@ -102,10 +102,12 @@ def stop_message(message):
         message.chat.id, botMessages.notify_goodbye, reply_markup=kb.keyboard1)
 
 
-def send_media(message):
+def send_media(update, context):
     try:
         currentDir = os.getcwd()
-        inputImage = bot.get_file(message.photo[len(message.photo)-1].file_id)
+        message = update.message
+        inputImage = bot.get_file(
+            message.photo[len(message.photo)-1].file_id)
         # name of input image
         photoName = "{}.jpg".format(message.chat.id)
         destinationInputPhotoPath = os.path.join(
@@ -125,9 +127,12 @@ def send_media(message):
         logging.error('[Send media(photo)]: Error {}.'.format(ex))
 
 
-def handle_query(call):
+@bot.callback_query_handler(func=lambda call: True)
+def handle_query(update, context):
     try:
-        if 'yes' in call.data:
+        call = update.callback_query
+        data = call.data
+        if 'yes' in data:
             messages.update_one(filter={"user_id": call.message.chat.id}, update={
                                 '$push': {'known_words': call.message.text}}, upsert=True)
             bot.edit_message_text(chat_id=call.message.chat.id,
@@ -137,7 +142,7 @@ def handle_query(call):
                                   reply_markup=kb.rateKeyboard(True).to_json()
                                   )
 
-        if 'no' in call.data:
+        if 'no' in data:
             messages.update_one(filter={"user_id": call.message.chat.id}, update={
                                 '$push': {'new_words': call.message.text}}, upsert=True)
             bot.edit_message_text(chat_id=call.message.chat.id,
@@ -147,25 +152,26 @@ def handle_query(call):
                                   reply_markup=kb.rateKeyboard(
                                       False).to_json()
                                   )
-        if 'Ru' in call.data:
+        if 'Ru' in data:
             bot.send_message(chat_id=call.message.chat.id,
                              text=botMessages.help_message_ru,
                              reply_markup=kb.keyboard2.to_json()
                              )
-        if 'En' in call.data:
+        if 'En' in data:
             bot.send_message(chat_id=call.message.chat.id,
                              text=botMessages.help_message_en,
                              reply_markup=kb.keyboard2.to_json()
                              )
         else:
             logging.info(
-                "Get another message from inline mode: {}".format(call.data))
+                "Get another message from inline mode: {}".format(data))
     except Exception as ex:
         logging.error('[Handle_query]: Error {}.'.format(ex))
 
 
-def suggest_topic(message):
+def suggest_topic(update, context):
     try:
+        message = update.message
         suggestedTopic = message.text.split(' ')
         value = {'id': message.from_user.id, 'topic': suggestedTopic[1]}
         topic.insert_one(value)
@@ -178,9 +184,10 @@ def suggest_topic(message):
         bot.send_message(message.chat.id, messageError)
 
 
-def send_text(message):
+def send_text(update, context):
     api = wordAPI.engWord()
-    userId = message.json['from']['id']
+    message = update.message
+    userId = message.from_user.id
     if message.text == botMessages.keyboard_hello_row1:
         handlers.teachNewEnglishWord(api, userId, bot, clients)
 
@@ -234,7 +241,7 @@ def send_text(message):
     else:
         # translate text
         api = wordAPI.engWord()
-        translation = html.unescape(api.getTranslation(message.json["text"]))
+        translation = html.unescape(api.getTranslation(message.text))
         handlers.sendTextToSpeech(bot, translation, userId)
         bot.send_message(message.chat.id, translation)
 
@@ -247,6 +254,8 @@ def callback_resender(context: telegram.ext.CallbackContext):
     hour = datetime.datetime.now().hour
     if hour > 10 and hour < 22:
         handlers.autoResendMessages(context.bot, clients)
+    else:
+        logging.info('Current time is {}'.format(datetime.datetime.now()))
 
 
 def callback_reminder(context: telegram.ext.CallbackContext):
@@ -254,7 +263,7 @@ def callback_reminder(context: telegram.ext.CallbackContext):
 
 
 def error(update, context):
-    logging.warning('update "%s" casused error "%s"', update, context.error)
+    logging.warning('update "%s" caused error "%s"', update, context.error)
 
 
 job.run_repeating(
@@ -274,14 +283,12 @@ try:
     dp.add_handler(handler=CommandHandler("stop", stop_message))
     dp.add_handler(handler=MessageHandler(Filters.text, send_text))
     dp.add_handler(handler=MessageHandler(Filters.photo, send_media))
+    dp.add_handler(handler=CallbackQueryHandler(handle_query))
     dp.add_error_handler(error)
     certssl = os.path.join(os.getcwd(), 'ssl', 'cert.pem')
     keyssl = os.path.join(os.getcwd(), 'ssl', 'private.key')
-    print(certssl)
-    print(keyssl)
-    updater.start_webhook(listen='0.0.0.0', port=8443,
+    updater.start_webhook(listen='0.0.0.0', port=key.hookPort,
                           url_path=key.API_skipper)
-    # ,key=keyssl, cert=certssl, webhook_url='https://{}/{}/'.format(key.HOST, key.API_skipper))
     updater.bot.set_webhook(url='https://{}/{}/'.format(key.HOST,
                                                         key.API_skipper), certificate=open(certssl, 'rb'))
     updater.idle()
