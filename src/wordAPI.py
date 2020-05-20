@@ -21,12 +21,11 @@ class engWord:
         self.MaxWords = 1000
         self.datamuse = datamuse.Datamuse()
 
-
     def getWordOnTopic(self, topic, position):
         try:
             url = "http://api.datamuse.com/words"
             querystring = {"ml": topic,
-                           "max": self.MaxWords, "md": "r", "ipa": "1"}
+                           "max": position+1, "md": "r", "ipa": "1"}
             headers = {'cache-control': "no-cache"}
             response = requests.request(
                 "GET", url,  headers=headers, params=querystring)
@@ -34,11 +33,28 @@ class engWord:
             tags = words[position]['tags']
             transcripton = '['+tags[len(tags)-1].split(':')[1]+']'
             word = words[position]['word']
-            return transcripton, word
+            # TODO get synonym of a word
+            synonyms = self.getSynonym(word, position)
+            return transcripton, word, synonyms if synonyms.count > 0 else transcripton, word
         except Exception as exp:
             print(exp)
             return 'Возникла ошибка:{}'.format(exp.args), None
 
+    def getSynonym(self, word, position):
+        try:
+            url = "http://api.datamuse.com/words"
+            querystring = {"rel_syn": word,
+                           "max": position+1}
+            headers = {'cache-control': "no-cache"}
+            response = requests.request(
+                "GET", url,  headers=headers, params=querystring)
+            temp = json.loads(response.text)
+            synonyms = []
+            for i in len(temp):
+                synonyms.append(temp[i]['word'])
+            return synonyms if synonyms.count > 0 else None
+        except Exception as ex:
+            pass
 
     def detectLanguage(self, word):
         try:

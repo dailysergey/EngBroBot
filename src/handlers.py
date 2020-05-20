@@ -50,8 +50,8 @@ def teachNewEnglishWord(api, user_id, bot, clients):
             return
 
         translation = api.getTranslation(nextWord)
-        newWord = '<b>{}</b> - {} - <b>{}</b>'.format(nextWord,
-                                                      transcription, translation)
+        newWord = '{} - {} - {}'.format(nextWord,
+                                        transcription, translation)
         #keyBoard = kb.rateKeyboard()
         try:
             bot.send_message(
