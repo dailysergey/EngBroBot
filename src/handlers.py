@@ -68,7 +68,9 @@ def teachNewEnglishWord(api, user_id, bot, clients):
 
 
 def sendTextToSpeech(bot, word, user_id):
-    outputFile = "{}.mp3".format(re.split(r"(\b[\w']+\b)(?:.+|$)", word)[1] )
+    text = (re.split(r"(\b[\w']+\b)(?:.+|$)", word)[1])
+    logging.info('text:{}'.format(text))
+    outputFile = "{}.mp3".format(text)
     textToSpeech(word, outputFile)
     bot.send_audio(user_id, audio=open(outputFile, "rb"))
     os.remove(outputFile)
