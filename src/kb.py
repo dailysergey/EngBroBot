@@ -22,6 +22,7 @@ keyboard4 = telebot.types.ReplyKeyboardMarkup(row_width=1)
 keyboard4.row(botMessages.keyboard_hello_row1)
 keyboard4.row(botMessages.keyboard_current_topic)
 keyboard4.row(botMessages.keyboard_disable_noty_row3)
+keyboard4.row(botMessages.keyboard_test_row4)
 keyboard4.row(botMessages.send_everybody)
 keyboard4.row(botMessages.get_stats)
 
