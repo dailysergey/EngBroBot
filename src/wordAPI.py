@@ -50,11 +50,11 @@ class engWord:
                 "GET", url,  headers=headers, params=querystring)
             temp = json.loads(response.text)
             synonyms = []
-            for i in len(temp):
+            for i in range(temp):
                 synonyms.append(temp[i]['word'])
             return synonyms if synonyms.count > 0 else None
         except Exception as ex:
-            pass
+            return 'Возникла ошибка:{}'.format(ex.args), None
 
     def detectLanguage(self, word):
         try:
