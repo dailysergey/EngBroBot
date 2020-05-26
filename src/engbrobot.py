@@ -19,7 +19,8 @@ from telegram.ext import Updater
 import detect
 import os
 from telebot import types
-
+import urllib
+import quiz
 logging.basicConfig(level=logging.DEBUG,
                     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
@@ -237,12 +238,17 @@ def send_text(update, context):
             for sms_stat in messages.find(filter={"user_id": user["id"]}):
                 userInfo = handlers.getUsersInfo(user, sms_stat)
                 bot.send_message(userId, userInfo)
-
+    elif message.text == botMessages.keyboard_test_row4:
+        poll = telegram.Poll(
+            1, quiz.question1, options=quiz.variants1, total_voter_count=1, is_closed=False, correct_option_id=quiz.answer1, is_anonymous=True, allows_multiple_answers=False, type='quiz')
+        bot.send_poll(userId, poll)
     else:
         # translate text
         api = wordAPI.engWord()
-        translation = html.unescape(api.getTranslation(message.text))
-        handlers.sendTextToSpeech(bot, translation, userId)
+        translation, resultLang = html.unescape(
+            api.getTranslation(message.text))
+        textToSpeech = message.text if resultLang == 'ru' else translation
+        handlers.sendTextToSpeech(bot, textToSpeech, userId)
         bot.send_message(message.chat.id, translation)
 
 
