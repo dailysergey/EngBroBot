@@ -34,6 +34,7 @@ class engWord:
             transcripton = '['+tags[len(tags)-1].split(':')[1]+']'
             word = words[position]['word']
             # TODO get synonym of a word
+            logging.info('Right before synonym funcrion!')
             synonyms = self.getSynonym(word, position)
             return transcripton, word, synonyms if synonyms.count > 0 else transcripton, word
         except Exception as exp:
@@ -84,6 +85,8 @@ class engWord:
             word = urllib.parse.quote(word)
             # detect lang
             self.detectLanguage(word)
+            logging.info('SourceLang:{}, ResultLang:{}'.format(
+                self.ResultLang, self.SourceLang))
             # GOOGLE TRANSLATION API
             url = "https://translation.googleapis.com/language/translate/v2"
             payload = "q={}&target={}&key={}&source={}".format(
@@ -96,7 +99,7 @@ class engWord:
                 "POST", url, data=payload, headers=headers)
             result = json.loads(response.text)[
                 'data']['translations'][0]['translatedText']
-            return result
+            return result, self.ResultLang
         except Exception as exp:
             logging.error(exp)
             return "Возникла ошибка при переводе:{}".format(exp)
