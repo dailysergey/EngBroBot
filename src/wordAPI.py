@@ -21,7 +21,6 @@ class engWord:
         self.MaxWords = 1000
         self.datamuse = datamuse.Datamuse()
 
-
     def getWordOnTopic(self, topic, position):
         try:
             url = "http://api.datamuse.com/words"
@@ -38,7 +37,6 @@ class engWord:
         except Exception as exp:
             print(exp)
             return 'Возникла ошибка:{}'.format(exp.args), None
-
 
     def detectLanguage(self, word):
         try:
@@ -78,6 +76,11 @@ class engWord:
             }
             response = requests.request(
                 "POST", url, data=payload, headers=headers)
+                
+            # TODO map to get all translations
+            logging.info('getTranslation: list is {}'.format(
+                json.loads(response.text)))
+
             result = json.loads(response.text)[
                 'data']['translations'][0]['translatedText']
             return result
