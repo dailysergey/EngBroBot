@@ -34,11 +34,9 @@ class engWord:
             transcripton = '['+tags[len(tags)-1].split(':')[1]+']'
             word = words[position]['word']
             # TODO get synonym of a word
-            logging.info('Right before synonym funcrion!')
-            synonyms = self.getSynonym(word, position)
-            return transcripton, word, synonyms if synonyms.count > 0 else transcripton, word
+            return transcripton, word
         except Exception as exp:
-            print(exp)
+            logging.error('[getWordOnTopic]: {}'.format(exp))
             return 'Возникла ошибка:{}'.format(exp.args), None
 
     def getSynonym(self, word, position):
@@ -47,14 +45,18 @@ class engWord:
             querystring = {"rel_syn": word,
                            "max": position+1}
             headers = {'cache-control': "no-cache"}
+            logging.info('Making request to get synonyms')
             response = requests.request(
                 "GET", url,  headers=headers, params=querystring)
             temp = json.loads(response.text)
+            logging.info(
+                'Request to get sysnonym succeeded.Result:{}'.format(temp))
             synonyms = []
-            for i in range(temp):
-                synonyms.append(temp[i]['word'])
-            return synonyms if synonyms.count > 0 else None
+            for syn in temp:
+                synonyms.append(syn['word'])
+            return synonyms if len(synonyms) > 0 else None
         except Exception as ex:
+            logging.error('[getSynonym]:Error {}'.format(ex))
             return 'Возникла ошибка:{}'.format(ex.args), None
 
     def detectLanguage(self, word):
@@ -97,9 +99,16 @@ class engWord:
             }
             response = requests.request(
                 "POST", url, data=payload, headers=headers)
-            result = json.loads(response.text)[
-                'data']['translations'][0]['translatedText']
-            return result, self.ResultLang
+
+            logging.info('[getTranslation]: list of translations:{}'.format(
+                json.loads(response.text)))
+            translateVars = []
+            allTranslations = json.loads(response.text)[
+                'data']['translations']
+            logging.info(allTranslations)
+            for tr in allTranslations:
+                translateVars.append(tr['translatedText'])
+            return ', '.join(translateVars)
         except Exception as exp:
             logging.error(exp)
             return "Возникла ошибка при переводе:{}".format(exp)
