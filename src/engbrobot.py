@@ -245,8 +245,10 @@ def send_text(update, context):
     else:
         # translate text
         api = wordAPI.engWord()
-        translation, resultLang = html.unescape(
+
+        translation = html.unescape(
             api.getTranslation(message.text))
+        resultLang = api.ResultLang
         textToSpeech = message.text if resultLang == 'ru' else translation
         handlers.sendTextToSpeech(bot, textToSpeech, userId)
         bot.send_message(message.chat.id, translation)
