@@ -131,6 +131,6 @@ dmypy.json
 #API's
 key.py
 botMessages.py
-
+quiz.py
 #model
 src/objectDetection/
