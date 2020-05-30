@@ -5,11 +5,13 @@ import telebot.types
 
 keyboard1 = telebot.types.ReplyKeyboardMarkup(row_width=1)
 keyboard1.row(botMessages.keyboard_hello_row1)
+keyboard1.row(botMessages.keyboard_test_row4)
 keyboard1.row(botMessages.keyboard_enable_noty_row3)
 
 keyboard2 = telebot.types.ReplyKeyboardMarkup(row_width=1)
 keyboard2.row(botMessages.keyboard_hello_row1)
 keyboard2.row(botMessages.keyboard_current_topic)
+keyboard2.row(botMessages.keyboard_test_row4)
 keyboard2.row(botMessages.keyboard_disable_noty_row3)
 
 keyboard3 = telebot.types.ReplyKeyboardMarkup(row_width=2)
