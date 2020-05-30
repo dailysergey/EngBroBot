@@ -25,7 +25,7 @@ class engWord:
         try:
             url = "http://api.datamuse.com/words"
             querystring = {"ml": topic,
-                           "max": self.MaxWords, "md": "r", "ipa": "1"}
+                           "max": position+1, "md": "r", "ipa": "1"}
             headers = {'cache-control': "no-cache"}
             response = requests.request(
                 "GET", url,  headers=headers, params=querystring)
@@ -33,9 +33,10 @@ class engWord:
             tags = words[position]['tags']
             transcripton = '['+tags[len(tags)-1].split(':')[1]+']'
             word = words[position]['word']
+            # TODO get synonym of a word
             return transcripton, word
         except Exception as exp:
-            print(exp)
+            logging.error('[getWordOnTopic]: {}'.format(exp))
             return 'Возникла ошибка:{}'.format(exp.args), None
 
     def detectLanguage(self, word):
@@ -66,6 +67,8 @@ class engWord:
             word = urllib.parse.quote(word)
             # detect lang
             self.detectLanguage(word)
+            logging.info('SourceLang:{}, ResultLang:{}'.format(
+                self.ResultLang, self.SourceLang))
             # GOOGLE TRANSLATION API
             url = "https://translation.googleapis.com/language/translate/v2"
             payload = "q={}&target={}&key={}&source={}".format(
