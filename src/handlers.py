@@ -1,4 +1,4 @@
-
+import quiz
 import botMessages
 import wordAPI
 import tgClient
@@ -38,8 +38,21 @@ def autoReminder(bot, clients):
     except Exception as ex:
         logging.error(ex)
 
-# Forming message for user
+def autoQuizSender(bot, clients):
+    try:
+        for client in clients.find(filter={'send_notifies': 'true'}):
+            userId = client["id"]
+            task = threading.Thread(
+                target=sendQuizPoll, args=(userId, bot))
+            task.start()
+    except Exception as ex:
+        logging.error(ex)
 
+def sendQuizPoll(userId, bot):
+    quizQuestion = quiz.getAnotherQuiz()
+    bot.send_poll(userId, question=quizQuestion[0], options=quizQuestion[1],
+                              type='quiz', correct_option_id=quizQuestion[2], is_closed=False)
+# Forming message for user
 
 def teachNewEnglishWord(api, user_id, bot, clients):
     for user in clients.find(filter={'id': user_id}):
