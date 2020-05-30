@@ -1,2 +1,0 @@
-#To start python script on web-server after closing console:
-nohup englishBot.py &
