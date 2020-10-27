@@ -12,7 +12,7 @@ chardet==3.0.4
 colorama==0.3.7
 configobj==5.0.6
 constantly==15.1.0
-cryptography==2.8
+cryptography==3.2
 cvlib==0.2.5
 cycler==0.10.0
 decorator==4.4.2
