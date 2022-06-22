@@ -46,7 +46,7 @@ MarkupSafe==1.1
 matplotlib==3.2.1
 mock==4.0.2
 np-utils==0.5.12.1
-numpy==1.18.3
+numpy==1.22.0
 oauthlib==2.0.6
 opencv-python==4.2.0.32
 Pillow==7.1.2
