@@ -52,7 +52,7 @@ opencv-python==4.2.0.32
 Pillow==7.1.2
 pip==9.0.1
 progressbar==2.5
-protobuf==3.11.3
+protobuf==3.18.3
 pyasn1==0.4.2
 pyasn1-modules==0.2.1
 pycparser==2.20
