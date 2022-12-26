@@ -84,6 +84,6 @@ Twisted==17.9.0
 urllib3==1.25.9
 virtualenv==20.0.15
 Werkzeug==1.0.0
-wheel==0.34.2
+wheel==0.38.1
 wrapt==1.12.1
 zipp==3.1.0
